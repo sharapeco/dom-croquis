@@ -1,0 +1,28 @@
+{
+  "name": "html-to-canvas",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Faster screenshots of web pages with JavaScript",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "dev": "npx http-server .",
+    "build": "rollup --config && rollup --config --environment MINIFY"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sharapeco/html-to-canvas.git"
+  },
+  "author": "Shinichiro Yabu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sharapeco/html-to-canvas/issues"
+  },
+  "homepage": "https://github.com/sharapeco/html-to-canvas#readme",
+  "devDependencies": {
+    "@rollup/plugin-strip": "^3.0.4",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.37.0"
+  }
+}
