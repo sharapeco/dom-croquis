@@ -4,34 +4,20 @@
  * @typedef {import("./types.js").FillToken} FillToken
  * @typedef {import("./types.js").TextToken} TextToken
  * @typedef {import("./types.js").ImageToken} ImageToken
- *
- * @typedef {Object} Options
- * @property {number=} width
- * @property {number=} height
- * @property {number=} scale
  */
-
-import { Tokenizer } from "./tokenizer.js";
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;
 const underlineOffset = isSafari ? 0.5 : -2.5;
 
-/**
- * @param {HTMLElement} root
- * @param {Options} options
- * @returns {Promise<HTMLCanvasElement>}
- */
-export async function htmlToCanvas(root, options = {}) {
-	const scale = Math.abs(options.scale ?? 1);
-
-	const tokenizer = new Tokenizer(root);
-	const tokens = await tokenizer.tokenize();
-	console.log("[htmlToCanvas.js] tokens", tokens);
+export function render(tokens, options = {}) {
+	const { width, height, scale } = options;
 
 	const canvas = document.createElement("canvas");
-	canvas.width = (options.width ?? root.clientWidth) * scale;
-	canvas.height = (options.height ?? root.clientHeight) * scale;
+	canvas.width = width * scale;
+	canvas.height = height * scale;
+	canvas.style.width = `${width}px`;
+	canvas.style.height = `${height}px`;
 
 	const ctx = canvas.getContext("2d");
 	if (!ctx) {

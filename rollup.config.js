@@ -5,7 +5,7 @@ const minify = process.env.MINIFY || false;
 
 async function config() {
 	return {
-		input: "src/htmlToCanvas.js",
+		input: "src/html-to-canvas.js",
 		output: {
 			file: `dist/html-to-canvas${minify ? ".min" : ""}.js`,
 			format: "es",

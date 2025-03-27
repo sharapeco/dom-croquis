@@ -27,7 +27,9 @@ export class Tokenizer {
 	 */
 	constructor(root) {
 		this.root = root;
-		this.pixel = Number.parseFloat(window.getComputedStyle(root).fontSize) / 16;
+		this.window = root.ownerDocument.defaultView;
+		this.getComputedStyle = this.window.getComputedStyle.bind(this.window);
+		this.pixel = Number.parseFloat(this.getComputedStyle(root).fontSize) / 16;
 		console.log("[Tokenizer.js] this.pixel", this.pixel);
 	}
 
@@ -103,7 +105,7 @@ export class Tokenizer {
 			return { ...parentState, clip: false };
 		}
 
-		const { display, opacity, overflow } = window.getComputedStyle(node);
+		const { display, opacity, overflow } = this.getComputedStyle(node);
 		return {
 			clip: overflow === "hidden",
 			hidden: parentState.hidden || display === "none" || opacity === "0",
@@ -168,7 +170,7 @@ export class Tokenizer {
 	 * @returns {string | undefined}
 	 */
 	parseFillColor(elem) {
-		const { backgroundColor } = window.getComputedStyle(elem);
+		const { backgroundColor } = this.getComputedStyle(elem);
 		if (this.isTransparent(backgroundColor)) {
 			return;
 		}
@@ -243,7 +245,7 @@ export class Tokenizer {
 	 * @returns {Promise<ImageToken | null>}
 	 */
 	async parseBackgroundImageToken(el, position) {
-		const { backgroundImage, mixBlendMode } = window.getComputedStyle(el);
+		const { backgroundImage, mixBlendMode } = this.getComputedStyle(el);
 		if (backgroundImage === "none") {
 			return;
 		}
@@ -283,7 +285,7 @@ export class Tokenizer {
 		const image = await readImage(src);
 		const token = { type: "image", node: elem, image, ...position };
 		if (elem.dataset.fillCurrentColor != null) {
-			const parentStyle = window.getComputedStyle(elem.parentElement);
+			const parentStyle = this.getComputedStyle(elem.parentElement);
 			token.fillColor = parentStyle.color;
 		}
 		return token;
@@ -309,7 +311,7 @@ export class Tokenizer {
 	}
 
 	parseFillProperties(el) {
-		const computedStyle = window.getComputedStyle(el);
+		const computedStyle = this.getComputedStyle(el);
 		return {
 			radius: {
 				tl: Number.parseFloat(computedStyle.borderTopLeftRadius),
@@ -352,7 +354,7 @@ export class Tokenizer {
 	 * @returns {{ x: number; y: number }}
 	 */
 	getTransformXY(el) {
-		const computedStyle = window.getComputedStyle(el);
+		const computedStyle = this.getComputedStyle(el);
 		const transform = computedStyle.transform;
 		if (transform === "none") {
 			return { x: 0, y: 0 };
@@ -371,7 +373,7 @@ export class Tokenizer {
 	 * @returns {TextProp}
 	 */
 	parseFontProperties(elem) {
-		const computedStyle = window.getComputedStyle(elem);
+		const computedStyle = this.getComputedStyle(elem);
 		const {
 			color,
 			fontStyle,
