@@ -11,7 +11,7 @@ The library is provided as an ES module. You can import it directly into your pr
 ```js
 import { htmlToCanvas } from "html-to-canvas.js";
 
-const canvas = htmlToCanvas(document.body);
+const canvas = await htmlToCanvas(document.body);
 document.body.appendChild(canvas);
 ```
 
