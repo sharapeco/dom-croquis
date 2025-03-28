@@ -30,7 +30,6 @@ export class Tokenizer {
 		this.window = root.ownerDocument.defaultView;
 		this.getComputedStyle = this.window.getComputedStyle.bind(this.window);
 		this.pixel = Number.parseFloat(this.getComputedStyle(root).fontSize) / 16;
-		console.log("[Tokenizer.js] this.pixel", this.pixel);
 	}
 
 	/**
@@ -43,11 +42,28 @@ export class Tokenizer {
 		/** @type {Token[]} トークンリスト */
 		const tokens = [];
 
+		const pushState = (state) => {
+			states.push(state);
+		};
+		const popState = () => {
+			const state = states.pop();
+			if (state.clip && !state.hidden) {
+				tokens.push({
+					type: "endClip",
+					x: 0,
+					y: 0,
+					width: 0,
+					height: 0,
+				});
+			}
+			return state;
+		};
+
 		/** @type {Node} */
 		let node = this.root;
 		walk: while (node != null && node !== this.root.nextSibling) {
 			const state = this.readState(node, states[states.length - 1]);
-			states.push(state);
+			pushState(state);
 
 			switch (node.nodeType) {
 				case Node.ELEMENT_NODE:
@@ -68,21 +84,12 @@ export class Tokenizer {
 			if (node.childNodes.length > 0) {
 				node = node.firstChild;
 			} else if (node.nextSibling !== null) {
-				states.pop();
+				popState();
 				node = node.nextSibling;
 			} else {
-				states.pop();
+				popState();
 				while (node != null && node.nextSibling === null) {
-					const parentState = states.pop();
-					if (parentState.clip && !parentState.hidden) {
-						tokens.push({
-							type: "endClip",
-							x: 0,
-							y: 0,
-							width: 0,
-							height: 0,
-						});
-					}
+					popState();
 					node = node.parentNode;
 					if (node === this.root) {
 						break walk;
