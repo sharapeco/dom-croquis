@@ -68,7 +68,10 @@ export class Tokenizer {
 			switch (node.nodeType) {
 				case Node.ELEMENT_NODE:
 					if (!state.hidden) {
-						tokens.push(...(await this.readElementTokens(node, state)));
+						const elementTokens = await this.readElementTokens(node, state);
+						for (const token of elementTokens) {
+							tokens.push(token);
+						}
 					}
 					break;
 				case Node.TEXT_NODE:
