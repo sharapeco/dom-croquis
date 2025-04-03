@@ -16,7 +16,6 @@ import { Sandbox } from "./sandbox.js";
  * @returns {Promise<HTMLCanvasElement>}
  */
 export async function htmlToCanvas(root, options = {}) {
-	options.debug = true;
 	const scale = Math.abs(options.scale ?? window.devicePixelRatio ?? 1);
 
 	const sandbox = new Sandbox(root, options);
@@ -26,7 +25,6 @@ export async function htmlToCanvas(root, options = {}) {
 
 	const tokenizer = new Tokenizer(targetClone, getComputedStyle);
 	const tokens = await tokenizer.tokenize();
-	console.log("[html-to-canvas.js] tokens", tokens);
 
 	const canvas = render(tokens, {
 		width: options.width ?? root.clientWidth,
