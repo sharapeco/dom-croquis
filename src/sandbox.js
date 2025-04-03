@@ -37,11 +37,25 @@ export class Sandbox {
 		const documentCloner = new DocumentCloner(this.root);
 		documentCloner.clone();
 
-		const body = documentCloner.root.querySelector("body");
+		const { root, doc } = documentCloner;
+
+		const head = root.querySelector("head");
+		if (!head) {
+			throw new Error("Head element not found");
+		}
+		const base = doc.createElement("base");
+		base.setAttribute("href", location.href);
+		head.appendChild(base);
+
+		const body = root.querySelector("body");
 		if (!body) {
 			throw new Error("Body element not found");
 		}
-		body.appendChild(this.createCallback(documentCloner.doc));
+		body.appendChild(this.createScripts(doc));
+
+		const callbackPromise = new Promise((resolve) => {
+			_global[this.callbackFunctionName] = (target) => resolve(target);
+		});
 
 		const iframe = ownerDocument.createElement("iframe");
 		const iframeStyle = iframe.style;
@@ -54,12 +68,27 @@ export class Sandbox {
 		iframeStyle.visibility = "hidden";
 		this.iframe = iframe;
 
+		const iframeLoadPromise = new Promise((resolve, reject) => {
+			iframe.addEventListener("load", () => {
+				URL.revokeObjectURL(iframe.src);
+				resolve();
+			});
+			iframe.addEventListener("error", () => {
+				reject(new Error("Failed to load iframe"));
+			});
+		});
+
 		const blob = new Blob([documentCloner.clonedHTML], { type: "text/html" });
 		iframe.src = URL.createObjectURL(blob);
 
-		return [iframe, new Promise((resolve) => {
-			_global[this.callbackFunctionName] = (target) => resolve(target);
-		})];
+		return [
+			iframe,
+			new Promise((resolve, reject) => {
+				Promise.all([callbackPromise, iframeLoadPromise])
+					.then(([targetClone]) => resolve(targetClone))
+					.catch(reject);
+			}),
+		];
 	}
 
 	destroy() {
@@ -71,10 +100,21 @@ export class Sandbox {
 	 * @param {Document} doc
 	 * @returns {HTMLScriptElement} コールバック関数を呼び出すための script 要素
 	 */
-	createCallback(doc) {
+	createScripts(doc) {
 		const script = doc.createElement("script");
+		script.type = "module";
 		const selector = `[${DocumentCloner.MARK_ATTR}]`;
-		script.textContent = `window.parent.${this.callbackFunctionName}(document.querySelector('${selector}'));`;
+		script.textContent = `function replaceHref(href) {
+	const url = new URL(href);
+	url.searchParams.set("__html-to-canvas-sandbox", "${Date.now()}");
+	return url.toString();
+}
+for (const link of document.querySelectorAll("link[rel='stylesheet']")) {
+	link.setAttribute("href", replaceHref(link.href));
+}
+window.addEventListener("load", () => {
+	window.parent.${this.callbackFunctionName}(document.querySelector('${selector}'));
+});`;
 		return script;
 	}
 }
