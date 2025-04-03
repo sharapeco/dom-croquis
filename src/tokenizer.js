@@ -30,6 +30,7 @@ export class Tokenizer {
 		this.window = root.ownerDocument.defaultView;
 		this.getComputedStyle = this.window.getComputedStyle.bind(this.window);
 		this.pixel = Number.parseFloat(this.getComputedStyle(root).fontSize) / 16;
+		this.textTokenDivided = false;
 	}
 
 	/**
@@ -202,11 +203,14 @@ export class Tokenizer {
 	 */
 	readTextToken(node, prevToken) {
 		const text = node.textContent;
-		if (text === "") {
+		if (!/[^\s]/u.test(text)) {
+			this.textTokenDivided = true;
 			return null;
 		}
+
+		// (parent) > x-text > x-char > #text
 		const graphemeElement = node.parentNode;
-		const parentElement = graphemeElement?.parentNode;
+		const parentElement = graphemeElement?.parentNode?.parentNode;
 		const position = this.parseOffsetPosition(graphemeElement);
 		if (
 			Number.isNaN(
@@ -215,11 +219,13 @@ export class Tokenizer {
 			position.width <= 0 ||
 			position.height <= 0
 		) {
+			this.textTokenDivided = true;
 			return null;
 		}
 
 		// 同じ行のテキストは連結する
 		if (
+			!this.textTokenDivided &&
 			prevToken?.type === "text" &&
 			prevToken.node === parentElement &&
 			!textSpacingTrimList.includes(text[0]) &&
@@ -230,6 +236,7 @@ export class Tokenizer {
 			return null;
 		}
 
+		this.textTokenDivided = false;
 		return {
 			type: "text",
 			node: parentElement,

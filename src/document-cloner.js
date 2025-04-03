@@ -130,6 +130,10 @@ export class DocumentCloner {
 		if (!inBody) {
 			return text.cloneNode();
 		}
+		if (!/[^\s]/u.test(text.textContent)) {
+			// 空白文字のみのテキストノードはそのまま返す
+			return text.cloneNode();
+		}
 		const clone = this.doc.createElement("x-text");
 		for (const char of splitChar(text.textContent)) {
 			const charClone = this.doc.createElement("x-char");
