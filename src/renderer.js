@@ -146,6 +146,8 @@ function drawRect(ctx, token) {
  * @param {number} scale
  */
 function text(ctx, token, scale) {
+	const text = prepareText(token);
+
 	ctx.textBaseline = "top";
 	ctx.fillStyle = token.color;
 	ctx.font = token.font;
@@ -168,7 +170,7 @@ function text(ctx, token, scale) {
 	const scaleX = token.scaleX ?? 1;
 
 	ctx.setTransform(scale * scaleX, 0, 0, scale, x * scale, y * scale);
-	ctx.fillText(token.text, 0, 0);
+	ctx.fillText(text, 0, 0);
 	ctx.setTransform(scale, 0, 0, scale, 0, 0);
 
 	const { textDecoration } = token;
@@ -184,6 +186,14 @@ function text(ctx, token, scale) {
 		}
 		// NOTE: overline, line-through は使用していないので実装しない
 	}
+}
+
+function prepareText(token) {
+	const { text, whiteSpace } = token;
+	if (whiteSpace === "pre" || whiteSpace === "pre-wrap" || whiteSpace === "break-spaces" || whiteSpace === "preserve-spaces") {
+		return text.trim();
+	}
+	return text.replace(/\s+/g, " ");
 }
 
 /**

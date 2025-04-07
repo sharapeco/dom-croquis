@@ -51,6 +51,7 @@
  * @property {number} lineHeight
  * @property {string} textAlign
  * @property {TextDecoration=} textDecoration
+ * @property {string} whiteSpace
  * @property {number} scaleX 長体・平体の比率。1 が標準、< 1 が長体、> 1 が平体
  *
  * @typedef {Object} TextTokenProp

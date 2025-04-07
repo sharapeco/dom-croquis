@@ -228,7 +228,7 @@ export class Tokenizer {
 		const text = node.textContent;
 		if (!/[^\s]/u.test(text)) {
 			if (prevToken != null) {
-				prevToken.text = `${(prevToken.text ?? "").trimEnd()} `;
+				prevToken.text += text;
 			}
 			return null;
 		}
@@ -437,6 +437,7 @@ export class Tokenizer {
 			textDecorationColor,
 			textDecorationThickness,
 			transform,
+			whiteSpace,
 		} = computedStyle;
 
 		/**
@@ -473,6 +474,7 @@ export class Tokenizer {
 									? this.pixel
 									: Number.parseFloat(textDecorationThickness),
 						},
+			whiteSpace,
 			scaleX: scaleX != null ? Number.parseFloat(scaleX) : 1,
 		};
 	}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>white-space</title>
+	<style>
+		#content {
+			width: 20em;
+			padding: 1.5em;
+			border: 1px solid #ccc;
+			background-color: #f0f0f0;
+			font-family: "Times New Roman", serif;
+		}
+
+		.normal {
+			white-space: normal;
+		}
+
+		.nowrap {
+			white-space: nowrap;
+		}
+
+		.pre {
+			white-space: pre;
+		}
+
+		.pre-wrap {
+			white-space: pre-wrap;
+		}
+
+		.pre-line {
+			white-space: pre-line;
+		}
+
+		.break-spaces {
+			white-space: break-spaces;
+		}
+
+		.preserve-spaces {
+			white-space: preserve-spaces wrap;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>white-space</h1>
+
+	<div id="content">
+		<p class="normal">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+		<p class="nowrap">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+		<p class="pre">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+		<p class="pre-wrap">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+		<p class="pre-line">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+		<p class="break-spaces">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+		<p class="preserve-spaces">
+			Lorem   ipsum dolor sit amet,
+			consectetur adipiscing elit.
+			Sed do eiusmod tempor incididunt
+		</p>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/html-to-canvas.js";
+		const target = document.getElementById("content");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.body.appendChild(canvas);
+		});
+	</script>
+</body>
+
+</html>
