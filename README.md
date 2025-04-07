@@ -1,8 +1,8 @@
 # html-to-canvas
 
-This library can render the current DOM to a canvas element on the users browser, similar to [niklasvh/html2canvas](https://github.com/niklasvh/html2canvas).
+This library can render the current DOM to a canvas element on the users browser, similar to [niklasvh/html2canvas](https://github.com/niklasvh/html2canvas), [tsayen/dom-to-image](https://github.com/tsayen/dom-to-image), and [1904labs/dom-to-image-more](https://github.com/1904labs/dom-to-image-more).
 
-It achieves superior performance by supporting a limited set of CSS features. This focused approach allows for faster rendering times compared to html2canvas, making it an ideal choice for scenarios where high performance is prioritized over complete CSS feature support.
+It achieves superior performance by supporting a limited set of CSS features. This focused approach allows for faster rendering times compared to other libraries, making it an ideal choice for scenarios where high performance is prioritized over complete CSS feature support.
 
 ## Usage
 
