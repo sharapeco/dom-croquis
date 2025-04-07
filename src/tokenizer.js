@@ -9,17 +9,18 @@
  * @typedef {import("./types.js").TextProp} TextProp
  *
  * @typedef {Object} State
- * @property {boolean} clip
+ * @property {boolean} clipOverflow
  * @property {boolean} hidden
  */
 
 /** @type {State} */
 const defaultState = {
-	clip: false,
+	clipOverflow: false,
 	hidden: false,
 };
 
-const textSpacingTrimList = "、，。．・：；（〔［｛〈《「『【⦅〘〖«〝）〕］｝〉》」』】⦆〙〗»〟";
+const textSpacingTrimList =
+	"、，。．・：；（〔［｛〈《「『【⦅〘〖«〝）〕］｝〉》」』】⦆〙〗»〟";
 
 export class Tokenizer {
 	/**
@@ -30,7 +31,7 @@ export class Tokenizer {
 		this.window = root.ownerDocument.defaultView;
 		this.getComputedStyle = this.window.getComputedStyle.bind(this.window);
 		this.pixel = Number.parseFloat(this.getComputedStyle(root).fontSize) / 16;
-		this.textTokenDivided = false;
+		this.rootRect = root.getClientRects()[0];
 	}
 
 	/**
@@ -48,7 +49,7 @@ export class Tokenizer {
 		};
 		const popState = () => {
 			const state = states.pop();
-			if (state.clip && !state.hidden) {
+			if (state.clipOverflow && !state.hidden) {
 				tokens.push({
 					type: "endClip",
 					x: 0,
@@ -113,12 +114,22 @@ export class Tokenizer {
 	 */
 	readState(node, parentState) {
 		if (node.nodeType !== Node.ELEMENT_NODE) {
-			return { ...parentState, clip: false };
+			return { ...parentState, clipOverflow: false };
 		}
 
 		const { display, opacity, overflow } = this.getComputedStyle(node);
 		return {
-			clip: overflow === "hidden",
+			clipOverflow:
+				display !== "inline" &&
+				display !== "inline flow" &&
+				display !== "none" &&
+				display !== "contents" &&
+				display !== "table" &&
+				display !== "table-row" &&
+				(overflow === "hidden" ||
+					overflow === "clip" ||
+					overflow === "scroll" ||
+					overflow === "auto"),
 			hidden: parentState.hidden || display === "none" || opacity === "0",
 		};
 	}
@@ -132,12 +143,19 @@ export class Tokenizer {
 		/** @type {Array<Token | null>} */
 		const tokens = [];
 
-		const position = this.parseOffsetPosition(elem);
+		// const position = this.parseOffsetPosition(elem);
+		const rects = elem.getClientRects();
+		const position = {
+			x: rects[0].left - this.rootRect.left,
+			y: rects[0].top - this.rootRect.top,
+			width: rects[0].width,
+			height: rects[0].height,
+		};
 		const fill = this.parseFillColor(elem);
 		const fillProps =
-			state.clip || fill != null ? this.parseFillProperties(elem) : {};
+			state.clipOverflow || fill != null ? this.parseFillProperties(elem) : {};
 
-		if (state.clip) {
+		if (state.clipOverflow) {
 			/** @type {ClipToken} */
 			const clipToken = {
 				type: "clip",
@@ -149,15 +167,20 @@ export class Tokenizer {
 		}
 
 		if (fill != null) {
-			/** @type {FillToken} */
-			const fillToken = {
-				type: "fill",
-				node: elem,
-				...position,
-				color: fill,
-				...fillProps,
-			};
-			tokens.push(fillToken);
+			for (const rect of rects) {
+				/** @type {FillToken} */
+				const fillToken = {
+					type: "fill",
+					node: elem,
+					x: rect.left - this.rootRect.left,
+					y: rect.top - this.rootRect.top,
+					width: rect.width,
+					height: rect.height,
+					color: fill,
+					...fillProps,
+				};
+				tokens.push(fillToken);
+			}
 		}
 
 		const backgroundToken = await this.parseBackgroundImageToken(
@@ -204,14 +227,23 @@ export class Tokenizer {
 	readTextToken(node, prevToken) {
 		const text = node.textContent;
 		if (!/[^\s]/u.test(text)) {
-			this.textTokenDivided = true;
+			if (prevToken != null) {
+				prevToken.text = `${(prevToken.text ?? "").trimEnd()} `;
+			}
 			return null;
 		}
 
 		// (parent) > x-text > x-char > #text
 		const graphemeElement = node.parentNode;
 		const parentElement = graphemeElement?.parentNode?.parentNode;
-		const position = this.parseOffsetPosition(graphemeElement);
+		// const position = this.parseOffsetPosition(graphemeElement);
+		const rect = graphemeElement.getClientRects()[0];
+		const position = {
+			x: rect.left - this.rootRect.left,
+			y: rect.top - this.rootRect.top,
+			width: rect.width,
+			height: rect.height,
+		};
 		if (
 			Number.isNaN(
 				position.x + position.y + position.width + position.height,
@@ -219,13 +251,11 @@ export class Tokenizer {
 			position.width <= 0 ||
 			position.height <= 0
 		) {
-			this.textTokenDivided = true;
 			return null;
 		}
 
 		// 同じ行のテキストは連結する
 		if (
-			!this.textTokenDivided &&
 			prevToken?.type === "text" &&
 			prevToken.node === parentElement &&
 			!textSpacingTrimList.includes(text[0]) &&
@@ -236,7 +266,6 @@ export class Tokenizer {
 			return null;
 		}
 
-		this.textTokenDivided = false;
 		return {
 			type: "text",
 			node: parentElement,

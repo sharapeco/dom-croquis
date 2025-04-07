@@ -26,6 +26,10 @@ export async function htmlToCanvas(root, options = {}) {
 	const tokenizer = new Tokenizer(targetClone, getComputedStyle);
 	const tokens = await tokenizer.tokenize();
 
+	if (options.debug) {
+		console.log("[html-to-canvas] tokens", tokens);
+	}
+
 	const canvas = render(tokens, {
 		width: options.width ?? root.clientWidth,
 		height: options.height ?? root.clientHeight,
