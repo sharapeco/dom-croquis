@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>border-radius</title>
+	<link rel="stylesheet" href="examples.css">
+	<style>
+		#input {
+			flex: 0 0 19em;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1em;
+			padding: 1em;
+			border: 1px solid #ccc;
+			background-color: #f0f0f0;
+		}
+
+		.item {
+			width: 5em;
+			height: 3em;
+			margin: 0;
+			background: var(--c1-700);
+		}
+
+		.border-1 {
+			border: solid 1px var(--c1-500);
+		}
+
+		.border-8 {
+			border: solid 0.5em var(--c1-500);
+		}
+
+		.even {
+			border-radius: 1em;
+		}
+
+		.even-of {
+			border-radius: 4em;
+		}
+
+		.odd {
+			border-top-left-radius: 20%;
+			border-top-right-radius: 50%;
+			border-bottom-left-radius: 2em 1em;
+			border-bottom-right-radius: 1em 2em;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>border-radius</h1>
+
+	<div class="layout-horizontal">
+		<div id="input">
+			<p class="item"></p>
+			<p class="item border-1"></p>
+			<p class="item border-8"></p>
+			<p class="item even"></p>
+			<p class="item even border-1"></p>
+			<p class="item even border-8"></p>
+			<p class="item even-of"></p>
+			<p class="item even-of border-1"></p>
+			<p class="item even-of border-8"></p>
+			<p class="item odd"></p>
+			<p class="item odd border-1"></p>
+			<p class="item odd border-8"></p>
+		</div>
+		<div id="output"></div>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/html-to-canvas.js";
+		const target = document.getElementById("input");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.getElementById("output").appendChild(canvas);
+		});
+	</script>
+</body>
+
+</html>

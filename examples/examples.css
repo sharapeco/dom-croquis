@@ -1,3 +1,14 @@
+:root {
+	--c1-700: #79d1f9;
+	--c2-700: #80d8c0;
+	--c3-700: #e89897;
+	--c4-700: #f4d17f;
+	--c1-500: #2495c9;
+	--c2-500: #2daa89;
+	--c3-500: #bc5250;
+	--c4-500: #c19329;
+}
+
 .layout-horizontal {
 	display: flex;
 	justify-content: flex-start;
