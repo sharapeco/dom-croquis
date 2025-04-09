@@ -6,6 +6,8 @@
  * @typedef {import("../types.js").ImageToken} ImageToken
  */
 
+import { drawPath } from "./path.js";
+
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;
 const underlineOffset = isSafari ? 0.5 : -2.5;
@@ -55,7 +57,11 @@ export function render(tokens, options = {}) {
  */
 function clip(ctx, token) {
 	ctx.beginPath();
-	drawRect(ctx, token);
+	if (token.path) {
+		drawPath(ctx, token.path);
+	} else {
+		drawRect(ctx, token);
+	}
 	ctx.clip();
 }
 
@@ -72,10 +78,25 @@ function fill(ctx, token) {
 		ctx.shadowBlur = blurRadius;
 		ctx.shadowColor = color;
 	}
+	if (token.strokeWidth) {
+		ctx.strokeStyle = token.color;
+		ctx.lineWidth = token.strokeWidth;
+	}
 
 	ctx.beginPath();
-	drawRect(ctx, token);
+	if (token.path) {
+		drawPath(ctx, token.path);
+	} else {
+		drawRect(ctx, token);
+	}
 	ctx.fill();
+
+	if (token.strokeWidth) {
+		ctx.stroke();
+	}
+
+	ctx.strokeStyle = "transparent";
+	ctx.lineWidth = 0;
 
 	ctx.shadowOffsetX = 0;
 	ctx.shadowOffsetY = 0;

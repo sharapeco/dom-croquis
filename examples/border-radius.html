@@ -41,7 +41,7 @@
 		}
 
 		.odd {
-			border-top-left-radius: 20%;
+			border-top-left-radius: 20% 30%;
 			border-top-right-radius: 50%;
 			border-bottom-left-radius: 2em 1em;
 			border-bottom-right-radius: 1em 2em;
@@ -76,6 +76,15 @@
 		htmlToCanvas(target, { debug: true }).then(function (canvas) {
 			document.getElementById("output").appendChild(canvas);
 		});
+	</script>
+
+	<script type="module">
+		const odd1 = document.querySelector(".odd");
+		const s = getComputedStyle(odd1);
+		console.log(s.borderTopLeftRadius);
+		console.log(s.borderTopRightRadius);
+		console.log(s.borderBottomLeftRadius);
+		console.log(s.borderBottomRightRadius);
 	</script>
 </body>
 

@@ -53,7 +53,8 @@
  * @property {number} br
  *
  * @typedef {Object} ClipTokenProp
- * @property {BorderRadius} radius
+ * @property {Path=} path
+ * @property {BorderRadius=} radius
  *
  * @typedef {BaseToken & ClipTokenProp} ClipToken
  *
@@ -61,6 +62,7 @@
  * @property {string} color
  * @property {BorderRadius} radius
  * @property {number} strokeWidth
+ * @property {Path=} path
  * @property {BoxShadow=} boxShadow
  *
  * @typedef {Object} BoxShadow
