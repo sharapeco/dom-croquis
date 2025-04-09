@@ -26,15 +26,15 @@ export async function htmlToCanvas(root, options = {}) {
 	const tokenizer = new Tokenizer(targetClone, getComputedStyle);
 	const tokens = await tokenizer.tokenize();
 
-	if (options.debug) {
-		console.log("[html-to-canvas] tokens", tokens);
-	}
-
+	const bound = root.getBoundingClientRect();
 	const canvas = render(tokens, {
-		width: options.width ?? root.clientWidth,
-		height: options.height ?? root.clientHeight,
+		width: options.width ?? bound.width,
+		height: options.height ?? bound.height,
 		scale,
 	});
+
+	console.log(`[html-to-canvas] canvas [${canvas.width}, ${canvas.height}, scale=${scale}] (${Math.round(bound.width)}, ${Math.round(bound.height)})`);
+	console.log("[html-to-canvas] tokens", tokens);
 
 	if (!options.debug) {
 		sandbox.destroy();
