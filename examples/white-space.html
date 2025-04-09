@@ -5,8 +5,10 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>white-space</title>
+	<link rel="stylesheet" href="examples.css">
 	<style>
-		#content {
+		#input {
+			flex: 0;
 			width: 20em;
 			padding: 1.5em;
 			border: 1px solid #ccc;
@@ -47,49 +49,52 @@
 <body>
 	<h1>white-space</h1>
 
-	<div id="content">
-		<p class="normal">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
-		<p class="nowrap">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
-		<p class="pre">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
-		<p class="pre-wrap">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
-		<p class="pre-line">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
-		<p class="break-spaces">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
-		<p class="preserve-spaces">
-			Lorem   ipsum dolor sit amet,
-			consectetur adipiscing elit.
-			Sed do eiusmod tempor incididunt
-		</p>
+	<div class="layout-horizontal">
+		<div id="input">
+			<p class="normal">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<p class="nowrap">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<p class="pre">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<p class="pre-wrap">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<p class="pre-line">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<p class="break-spaces">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<p class="preserve-spaces">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+		</div>
+		<div id="output"></div>
 	</div>
 
 	<script type="module">
 		import { htmlToCanvas } from "../src/html-to-canvas.js";
-		const target = document.getElementById("content");
+		const target = document.getElementById("input");
 		htmlToCanvas(target, { debug: true }).then(function (canvas) {
-			document.body.appendChild(canvas);
+			document.getElementById("output").appendChild(canvas);
 		});
 	</script>
 </body>

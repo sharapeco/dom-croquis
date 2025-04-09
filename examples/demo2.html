@@ -4,6 +4,7 @@
 <head>
   <title>Demo 2 from html2canvas</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="examples.css">
   <style>
     .feedback-overlay-black {
       background-color: #000;
@@ -18,7 +19,7 @@
   </style>
 
   <style>
-    div {
+    #input div {
       padding: 20px;
       margin: 0 auto;
       border: 5px solid black;
@@ -36,30 +37,37 @@
 </head>
 
 <body>
-  <div style="background:red;">
-    <div style="background:green;">
-      <div style="background:blue;border-color:white;">
-        <div style="background:yellow;">
-          <div style="background:orange;">
-            <h1>Heading</h1>
-            Text that isn't wrapped in anything.
-            <p>Followed by some text wrapped in a <b>&lt;p&gt; paragraph.</b> </p>
-            Maybe add a <a href="#">link</a> or a different style of <a href="#" style="background:white;"
-              id="highlight">link with a highlight</a>.
-            <hr />
-            <h2>More content</h2>
-            <div style="width:10px;height:10px;border-width:10px;padding:0;">a</div>
+  <div class="layout-horizontal">
+    <div id="input">
+      <div style="background:red;">
+        <div style="background:green;">
+          <div style="background:blue;border-color:white;">
+            <div style="background:yellow;">
+              <div style="background:orange;">
+                <h1>Heading</h1>
+                Text that isn't wrapped in anything.
+                <p>Followed by some text wrapped in a <b>&lt;p&gt; paragraph.</b> </p>
+                Maybe add a <a href="#">link</a> or a different style of <a href="#" style="background:white;"
+                  id="highlight">link with a highlight</a>.
+                <hr />
+                <h2>More content</h2>
+                <div style="width:10px;height:10px;border-width:10px;padding:0;">a</div>
+              </div>
+            </div>
+
           </div>
+
         </div>
-
       </div>
-
     </div>
+    <div id="output"></div>
   </div>
+
   <script type="module">
     import { htmlToCanvas } from '../src/html-to-canvas.js';
-    htmlToCanvas(document.body).then(function (canvas) {
-      document.body.appendChild(canvas);
+    const target = document.getElementById("input");
+    htmlToCanvas(target, { debug: true }).then(function (canvas) {
+      document.getElementById("output").appendChild(canvas);
     });
   </script>
 </body>

@@ -1,0 +1,10 @@
+.layout-horizontal {
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+	gap: 1em;
+}
+
+.layout-horizontal > * {
+	flex: 1;
+}
