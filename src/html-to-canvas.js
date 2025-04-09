@@ -5,9 +5,9 @@
  * @property {number=} scale
  */
 
-import { render } from "./renderer.js";
-import { Tokenizer } from "./tokenizer.js";
-import { Sandbox } from "./sandbox.js";
+import { render } from "./renderer/renderer.js";
+import { Tokenizer } from "./parser/tokenizer.js";
+import { Sandbox } from "./sandbox/sandbox.js";
 
 /**
  * @param {HTMLElement} root

@@ -1,12 +1,12 @@
 /**
- * @typedef {import("./types.js").Token} Token
- * @typedef {import("./types.js").ClipToken} ClipToken
- * @typedef {import("./types.js").FillToken} FillToken
- * @typedef {import("./types.js").TextToken} TextToken
- * @typedef {import("./types.js").ImageToken} ImageToken
- * @typedef {import("./types.js").Rect} Rect
- * @typedef {import("./types.js").BoxShadow} BoxShadow
- * @typedef {import("./types.js").TextProp} TextProp
+ * @typedef {import("../types.js").Token} Token
+ * @typedef {import("../types.js").ClipToken} ClipToken
+ * @typedef {import("../types.js").FillToken} FillToken
+ * @typedef {import("../types.js").TextToken} TextToken
+ * @typedef {import("../types.js").ImageToken} ImageToken
+ * @typedef {import("../types.js").Rect} Rect
+ * @typedef {import("../types.js").BoxShadow} BoxShadow
+ * @typedef {import("../types.js").TextProp} TextProp
  *
  * @typedef {Object} State
  * @property {boolean} clipOverflow
