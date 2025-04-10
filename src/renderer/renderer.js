@@ -6,7 +6,7 @@
  * @typedef {import("../types.js").ImageToken} ImageToken
  */
 
-import { drawPath, createPath2d } from "./path.js";
+import { createPath2d } from "./path.js";
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;

@@ -143,7 +143,6 @@ export class Tokenizer {
 		/** @type {Array<Token | null>} */
 		const tokens = [];
 
-		// const position = this.parseOffsetPosition(elem);
 		const rects = elem.getClientRects();
 		const position = {
 			x: rects[0].left - this.rootRect.left,
@@ -236,7 +235,6 @@ export class Tokenizer {
 		// (parent) > x-text > x-char > #text
 		const graphemeElement = node.parentNode;
 		const parentElement = graphemeElement?.parentNode?.parentNode;
-		// const position = this.parseOffsetPosition(graphemeElement);
 		const rect = graphemeElement.getClientRects()[0];
 		const position = {
 			x: rect.left - this.rootRect.left,
@@ -335,25 +333,6 @@ export class Tokenizer {
 			token.fillColor = parentStyle.color;
 		}
 		return token;
-	}
-
-	/**
-	 * @param {HTMLElement} el
-	 * @returns {Rect}
-	 */
-	parseOffsetPosition(el) {
-		let x = 0;
-		let y = 0;
-		let ptr = el;
-		while (ptr && ptr !== this.root) {
-			x += ptr.offsetLeft;
-			y += ptr.offsetTop;
-			const transform = this.getTransformXY(ptr);
-			x += transform.x;
-			y += transform.y;
-			ptr = ptr.offsetParent;
-		}
-		return { x, y, width: el.offsetWidth, height: el.offsetHeight };
 	}
 
 	parseFillProperties(el) {
