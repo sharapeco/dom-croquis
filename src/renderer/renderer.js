@@ -6,7 +6,7 @@
  * @typedef {import("../types.js").ImageToken} ImageToken
  */
 
-import { drawPath } from "./path.js";
+import { drawPath, createPath2d } from "./path.js";
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;
@@ -15,7 +15,7 @@ const underlineOffset = isSafari ? 0.5 : -2.5;
 export function render(tokens, options = {}) {
 	const { width, height, scale } = options;
 
-	const canvas = document.createElement("canvas");
+	const canvas = options.canvas ?? document.createElement("canvas");
 	canvas.width = width * scale;
 	canvas.height = height * scale;
 	canvas.style.width = `${width}px`;
@@ -58,7 +58,8 @@ export function render(tokens, options = {}) {
 function clip(ctx, token) {
 	ctx.beginPath();
 	if (token.path) {
-		drawPath(ctx, token.path);
+		const path2d = createPath2d(token.path);
+		ctx.fill(path2d);
 	} else {
 		drawRect(ctx, token);
 	}
@@ -79,17 +80,19 @@ function fill(ctx, token) {
 		ctx.shadowColor = color;
 	}
 	if (token.strokeWidth) {
-		ctx.strokeStyle = token.color;
+		ctx.strokeStyle = token.stroke ?? token.color;
 		ctx.lineWidth = token.strokeWidth;
 	}
 
-	ctx.beginPath();
 	if (token.path) {
-		drawPath(ctx, token.path);
+		const path2d = createPath2d(token.path);
+		ctx.stroke(path2d);
+		ctx.fill(path2d);
 	} else {
+		ctx.beginPath();
 		drawRect(ctx, token);
+		ctx.fill();
 	}
-	ctx.fill();
 
 	if (token.strokeWidth) {
 		ctx.stroke();
@@ -211,7 +214,12 @@ function text(ctx, token, scale) {
 
 function prepareText(token) {
 	const { text, whiteSpace } = token;
-	if (whiteSpace === "pre" || whiteSpace === "pre-wrap" || whiteSpace === "break-spaces" || whiteSpace === "preserve-spaces") {
+	if (
+		whiteSpace === "pre" ||
+		whiteSpace === "pre-wrap" ||
+		whiteSpace === "break-spaces" ||
+		whiteSpace === "preserve-spaces"
+	) {
 		return text.trim();
 	}
 	return text.replace(/\s+/g, " ");

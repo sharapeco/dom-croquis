@@ -1,143 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Path Test</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .test-case {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        .title {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .comparison {
-            display: flex;
-            gap: 20px;
-        }
-        .svg-container, .canvas-container {
-            border: 1px solid #eee;
-            padding: 10px;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Path Test</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			margin: 20px;
+		}
+
+		.test-case {
+			border: 1px solid #ccc;
+			padding: 10px;
+			margin-bottom: 20px;
+		}
+
+		.title {
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+
+		.comparison {
+			display: flex;
+			gap: 20px;
+		}
+
+		.svg-container,
+		.canvas-container {
+			border: 1px solid #eee;
+			padding: 10px;
+		}
+	</style>
 </head>
+
 <body>
-    <h1>Path Test</h1>
-    <div class="container">
-        <!-- テストケース1: 基本的な図形 -->
-        <div class="test-case">
-            <div class="title">テストケース1: 基本的な図形</div>
-            <div class="comparison">
-                <div class="svg-container">
-                    <h3>SVG</h3>
-                    <svg width="200" height="200" viewBox="0 0 200 200">
-                        <path d="M 50 50 L 150 50 L 150 150 L 50 150 Z" fill="none" stroke="black" />
-                    </svg>
-                </div>
-                <div class="canvas-container">
-                    <h3>Canvas</h3>
-                    <canvas id="canvas1" width="200" height="200"></canvas>
-                </div>
-            </div>
-        </div>
+	<h1>Path Test</h1>
+	<div class="container"></div>
 
-        <!-- テストケース2: ベジェ曲線 -->
-        <div class="test-case">
-            <div class="title">テストケース2: ベジェ曲線</div>
-            <div class="comparison">
-                <div class="svg-container">
-                    <h3>SVG</h3>
-                    <svg width="200" height="200" viewBox="0 0 200 200">
-                        <path d="M 50 100 C 50 50, 150 50, 150 100 S 250 150, 250 100" fill="none" stroke="black" />
-                    </svg>
-                </div>
-                <div class="canvas-container">
-                    <h3>Canvas</h3>
-                    <canvas id="canvas2" width="200" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- テストケース3: 楕円 -->
-        <div class="test-case">
-            <div class="title">テストケース3: 楕円</div>
-            <div class="comparison">
-                <div class="svg-container">
-                    <h3>SVG</h3>
-                    <svg width="200" height="200" viewBox="0 0 200 200">
-                        <path d="M 100 50 A 50 30 0 1 1 100 150 A 50 30 0 1 1 100 50" fill="none" stroke="black" />
-                    </svg>
-                </div>
-                <div class="canvas-container">
-                    <h3>Canvas</h3>
-                    <canvas id="canvas3" width="200" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { render } from '../../src/renderer/renderer.js';
-
-        // テストケース1: 基本的な図形
-        const path1 = {
-            segments: [
-                { command: "M", coordinates: [50, 50] },
-                { command: "L", coordinates: [150, 50] },
-                { command: "L", coordinates: [150, 150] },
-                { command: "L", coordinates: [50, 150] },
-                { command: "Z", coordinates: [] }
-            ]
-        };
-
-        // テストケース2: ベジェ曲線
-        const path2 = {
-            segments: [
-                { command: "M", coordinates: [50, 100] },
-                { command: "C", coordinates: [50, 50, 150, 50, 150, 100] },
-                { command: "S", coordinates: [250, 150, 250, 100] }
-            ]
-        };
-
-        // テストケース3: 楕円
-        const path3 = {
-            segments: [
-                { command: "M", coordinates: [100, 50] },
-                { command: "A", coordinates: [50, 30, 0, 1, 1, 100, 150] },
-                { command: "A", coordinates: [50, 30, 0, 1, 1, 100, 50] }
-            ]
-        };
-
-        // Canvasに描画
-        const tokens1 = [
-            { type: "fill", path: path1, color: "#000000", strokeWidth: 1 }
-        ];
-        const canvas1 = document.getElementById("canvas1");
-        render(tokens1, { width: 200, height: 200, scale: 1 });
-
-        const tokens2 = [
-            { type: "fill", path: path2, color: "#000000", strokeWidth: 1 }
-        ];
-        const canvas2 = document.getElementById("canvas2");
-        render(tokens2, { width: 200, height: 200, scale: 1 });
-
-        const tokens3 = [
-            { type: "fill", path: path3, color: "#000000", strokeWidth: 1 }
-        ];
-        const canvas3 = document.getElementById("canvas3");
-        render(tokens3, { width: 200, height: 200, scale: 1 });
-    </script>
+	<script type="module" src="path-test.js"></script>
 </body>
+
 </html>
