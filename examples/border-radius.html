@@ -11,6 +11,7 @@
 			flex: 0 0 19em;
 			display: flex;
 			flex-wrap: wrap;
+			align-items: flex-start;
 			gap: 1em;
 			padding: 1em;
 			border: 1px solid #ccc;
@@ -46,6 +47,30 @@
 			border-bottom-left-radius: 2em 1em;
 			border-bottom-right-radius: 1em 2em;
 		}
+
+		.wrap {
+			position: relative;
+		}
+
+		.br {
+			box-sizing: border-box;
+			position: absolute;
+			border: solid 0.5px;
+			opacity: 0.02;
+			pointer-events: none;
+		}
+		.br:nth-of-type(1) {
+			border-color: #f00;
+		}
+		.br:nth-of-type(2) {
+			border-color: #00f;
+		}
+		.br:nth-of-type(3) {
+			border-color: #0a0;
+		}
+		.br:nth-of-type(4) {
+			border-color: #fc0;
+		}
 	</style>
 </head>
 
@@ -72,19 +97,39 @@
 
 	<script type="module">
 		import { htmlToCanvas } from "../src/html-to-canvas.js";
+		import { Tokenizer } from "../src/parser/tokenizer.js";
+
 		const target = document.getElementById("input");
 		htmlToCanvas(target, { debug: true }).then(function (canvas) {
 			document.getElementById("output").appendChild(canvas);
 		});
-	</script>
 
-	<script type="module">
-		const odd1 = document.querySelector(".odd");
-		const s = getComputedStyle(odd1);
-		console.log(s.borderTopLeftRadius);
-		console.log(s.borderTopRightRadius);
-		console.log(s.borderBottomLeftRadius);
-		console.log(s.borderBottomRightRadius);
+		const tokenizer = new Tokenizer(target);
+		for (const item of target.querySelectorAll(".item")) {
+			// border-box からの座標で指定するためにラップする
+			const wrap = document.createElement("div");
+			wrap.classList.add("wrap");
+			item.replaceWith(wrap);
+			wrap.appendChild(item);
+
+			const css = getComputedStyle(item);
+			const rect = item.getBoundingClientRect();
+			const r = tokenizer.parseBorderRadius(css, rect);
+			createBr(wrap, { top: 0, left: 0, width: r[0], height: r[7] });
+			createBr(wrap, { top: 0, right: 0, width: r[1], height: r[2] });
+			createBr(wrap, { bottom: 0, right: 0, width: r[4], height: r[3] });
+			createBr(wrap, { bottom: 0, left: 0, width: r[5], height: r[6] });
+		}
+
+		function createBr(container, styles) {
+			const br = document.createElement("div");
+			br.classList.add("br");
+			for (const [key, value] of Object.entries(styles)) {
+				br.style[key] = `${value}px`;
+			}
+			container.appendChild(br);
+			return br;
+		}
 	</script>
 </body>
 
