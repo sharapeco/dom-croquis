@@ -1,9 +1,11 @@
 /**
  * @typedef {"clip" | "endClip" | "fill" | "text" | "image"} TokenType
  *
- * @typedef {Object} Rect
+ * @typedef {Object} Coordinates
  * @property {number} x
  * @property {number} y
+ *
+ * @typedef {Object} Rect
  * @property {number} width
  * @property {number} height
  *
@@ -37,33 +39,17 @@
  *
  * @typedef {Object} Path
  * @property {PathSegment[]} segments
+ * @property {"nonzero" | "evenodd"} [fillRule]
+ *
+ * @typedef {Object} Shape
+ * @property {Rect} rect
+ * @property {Path} path
  *
  * @typedef {Object} BaseToken
  * @property {TokenType} type
  * @property {Node} node
- * @property {number} x
- * @property {number} y
- * @property {number} width
- * @property {number} height
  *
- * @typedef {Object} BorderRadius
- * @property {number} tl
- * @property {number} tr
- * @property {number} bl
- * @property {number} br
- *
- * @typedef {Object} ClipTokenProp
- * @property {Path=} path
- * @property {BorderRadius=} radius
- *
- * @typedef {BaseToken & ClipTokenProp} ClipToken
- *
- * @typedef {Object} FillTokenProp
- * @property {string} color
- * @property {BorderRadius} radius
- * @property {number} strokeWidth
- * @property {Path=} path
- * @property {BoxShadow=} boxShadow
+ * @typedef {BaseToken & Coordinates & Shape} ClipToken
  *
  * @typedef {Object} BoxShadow
  * @property {number} offsetX
@@ -71,7 +57,11 @@
  * @property {number} blurRadius
  * @property {string} color
  *
- * @typedef {BaseToken & FillTokenProp} FillToken
+ * @typedef {Object} FillTokenProp
+ * @property {string} color
+ * @property {BoxShadow=} boxShadow
+ *
+ * @typedef {BaseToken & Coordinates & Shape & FillTokenProp} FillToken
  *
  * @typedef {Object} TextProp
  * @property {string} color
@@ -90,7 +80,7 @@
  * @typedef {Object} TextTokenProp
  * @property {string} text
  *
- * @typedef {BaseToken & TextTokenProp & TextProp} TextToken
+ * @typedef {BaseToken & Coordinates & Rect & TextTokenProp & TextProp} TextToken
  *
  * @typedef {Object} TextDecoration
  * @property {boolean} underline
@@ -101,17 +91,13 @@
  *
  * @typedef {Object} ImageTokenProp
  * @property {HTMLImageElement} image
- * @property {Clip=} clip
- * @property {string=} fillColor
- * @property {string=} blendMode "soft-light" など
+ * @property {ImageClip} [clip]
+ * @property {string} [fillColor]
+ * @property {string} [blendMode] "soft-light" など
  *
- * @typedef {BaseToken & ImageTokenProp} ImageToken
+ * @typedef {BaseToken & Coordinates & Rect & ImageTokenProp} ImageToken
  *
- * @typedef {Object} Clip
- * @property {number} x
- * @property {number} y
- * @property {number} width
- * @property {number} height
+ * @typedef {Coordinates & Rect} ImageClip
  *
  * @typedef {FillToken | TextToken | ImageToken} Token
  */

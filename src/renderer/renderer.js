@@ -56,14 +56,17 @@ export function render(tokens, options = {}) {
  * @param {FillToken} token
  */
 function clip(ctx, token) {
-	ctx.beginPath();
 	if (token.path) {
 		const path2d = createPath2d(token.path);
-		ctx.fill(path2d);
-	} else {
-		drawRect(ctx, token);
+		ctx.translate(token.x, token.y);
+		ctx.clip(path2d, token.path.fillRule ?? "nonzero");
+		ctx.translate(-token.x, -token.y);
+		return;
 	}
-	ctx.clip();
+	if (token.rect) {
+		ctx.rect(token.x, token.y, token.rect.width, token.rect.height);
+		ctx.clip();
+	}
 }
 
 /**
@@ -71,7 +74,9 @@ function clip(ctx, token) {
  * @param {FillToken} token
  */
 function fill(ctx, token) {
+	ctx.save();
 	ctx.fillStyle = token.color;
+
 	if (token.boxShadow) {
 		const { offsetX, offsetY, blurRadius, color } = token.boxShadow;
 		ctx.shadowOffsetX = offsetX;
@@ -79,89 +84,17 @@ function fill(ctx, token) {
 		ctx.shadowBlur = blurRadius;
 		ctx.shadowColor = color;
 	}
-	if (token.strokeWidth) {
-		ctx.strokeStyle = token.stroke ?? token.color;
-		ctx.lineWidth = token.strokeWidth;
-	}
 
 	if (token.path) {
 		const path2d = createPath2d(token.path);
-		ctx.stroke(path2d);
-		ctx.fill(path2d);
+		ctx.translate(token.x, token.y);
+		ctx.fill(path2d, token.path.fillRule ?? "nonzero");
 	} else {
-		ctx.beginPath();
-		drawRect(ctx, token);
+		ctx.rect(token.x, token.y, token.rect.width, token.rect.height);
 		ctx.fill();
 	}
 
-	if (token.strokeWidth) {
-		ctx.stroke();
-	}
-
-	ctx.strokeStyle = "transparent";
-	ctx.lineWidth = 0;
-
-	ctx.shadowOffsetX = 0;
-	ctx.shadowOffsetY = 0;
-	ctx.shadowBlur = 0;
-	ctx.shadowColor = "transparent";
-}
-
-/**
- *
- * @param {CanvasRenderingContext2D} ctx
- * @param {ClipToken | FillToken} token
- */
-function drawRect(ctx, token) {
-	const k = 0.5522847498;
-	const kk = 1 - k;
-	const {
-		x,
-		y,
-		width,
-		height,
-		radius: { tl, tr, bl, br },
-	} = token;
-
-	ctx.moveTo(x + width / 2, y);
-	ctx.lineTo(x + width - tr, y);
-	if (tr > 0) {
-		ctx.bezierCurveTo(
-			x + width - kk * tr,
-			y,
-			x + width,
-			y + kk * tr,
-			x + width,
-			y + tr,
-		);
-	}
-	ctx.lineTo(x + width, y + height - br);
-	if (br > 0) {
-		ctx.bezierCurveTo(
-			x + width,
-			y + height - kk * br,
-			x + width - kk * br,
-			y + height,
-			x + width - br,
-			y + height,
-		);
-	}
-	ctx.lineTo(x + bl, y + height);
-	if (bl > 0) {
-		ctx.bezierCurveTo(
-			x + kk * bl,
-			y + height,
-			x,
-			y + height - kk * bl,
-			x,
-			y + height - bl,
-		);
-	}
-	ctx.lineTo(x, y + tl);
-	if (tl > 0) {
-		ctx.bezierCurveTo(x, y + kk * tl, x + kk * tl, y, x + tl, y);
-	}
-	ctx.lineTo(x + width / 2, y);
+	ctx.restore();
 }
 
 /**
@@ -172,6 +105,7 @@ function drawRect(ctx, token) {
 function text(ctx, token, scale) {
 	const text = prepareText(token);
 
+	ctx.save();
 	ctx.textBaseline = "top";
 	ctx.fillStyle = token.color;
 	ctx.font = token.font;
@@ -195,8 +129,9 @@ function text(ctx, token, scale) {
 
 	ctx.setTransform(scale * scaleX, 0, 0, scale, x * scale, y * scale);
 	ctx.fillText(text, 0, 0);
-	ctx.setTransform(scale, 0, 0, scale, 0, 0);
+	ctx.restore();
 
+	ctx.save();
 	const { textDecoration } = token;
 	if (textDecoration) {
 		ctx.strokeStyle = textDecoration.color;
@@ -210,6 +145,7 @@ function text(ctx, token, scale) {
 		}
 		// NOTE: overline, line-through は使用していないので実装しない
 	}
+	ctx.restore();
 }
 
 function prepareText(token) {
