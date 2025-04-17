@@ -4,7 +4,9 @@
 
 DOMをクライアントブラウザ上でcanvas要素にレンダリングするライブラリです。類似のライブラリとして [niklasvh/html2canvas](https://github.com/niklasvh/html2canvas)、[tsayen/dom-to-image](https://github.com/tsayen/dom-to-image)、[1904labs/dom-to-image-more](https://github.com/1904labs/dom-to-image-more) などがあります。
 
-このライブラリは、CSS機能やDOMのサポートを限定することにより、ほかのライブラリよりも優れたパフォーマンスを実現しています。あらゆるケースを完全にレンダリングするよりも、使用するCSSがあらかじめ決まっていて、高いパフォーマンスが必要な用途に最適です。
+このライブラリではCSS機能やDOMのサポートを限定することにより、ほかのライブラリよりも高速に動作します。あらゆるケースを完全にレンダリングするよりも、使用するCSSがあらかじめ決まっていて、高いパフォーマンスが必要な用途に最適です。
+
+サポートしているCSS機能はWikiを参照してください。
 
 ## 使用方法
 

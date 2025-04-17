@@ -6,6 +6,8 @@ This library can render the current DOM to a canvas element on the users browser
 
 It achieves superior performance by supporting a limited set of CSS features. This focused approach allows for faster rendering times compared to other libraries, making it an ideal choice for scenarios where high performance is prioritized over complete CSS feature support.
 
+For a list of supported CSS features, please refer to the Wiki.
+
 ## Usage
 
 The library is provided as an ES module. You can import it directly into your project:
