@@ -1,3 +1,5 @@
+[English](README.md) | [日本語](README.ja.md)
+
 # html-to-canvas
 
 This library can render the current DOM to a canvas element on the users browser, similar to [niklasvh/html2canvas](https://github.com/niklasvh/html2canvas), [tsayen/dom-to-image](https://github.com/tsayen/dom-to-image), and [1904labs/dom-to-image-more](https://github.com/1904labs/dom-to-image-more).
