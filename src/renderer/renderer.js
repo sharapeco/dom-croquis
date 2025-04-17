@@ -1,6 +1,7 @@
 /**
  * @typedef {import("../types.js").Token} Token
  * @typedef {import("../types.js").ClipToken} ClipToken
+ * @typedef {import("../types.js").TransformToken} TransformToken
  * @typedef {import("../types.js").FillToken} FillToken
  * @typedef {import("../types.js").TextToken} TextToken
  * @typedef {import("../types.js").ImageToken} ImageToken
@@ -33,7 +34,12 @@ export function render(tokens, options = {}) {
 				ctx.save();
 				clip(ctx, token);
 				break;
+			case "transform":
+				ctx.save();
+				ctx.transform(...token.matrix);
+				break;
 			case "endClip":
+			case "endTransform":
 				ctx.restore();
 				break;
 			case "fill":
@@ -75,14 +81,10 @@ function clip(ctx, token) {
  */
 function fill(ctx, token) {
 	ctx.save();
-	ctx.fillStyle = token.color;
 
-	if (token.boxShadow) {
-		const { offsetX, offsetY, blurRadius, color } = token.boxShadow;
-		ctx.shadowOffsetX = offsetX;
-		ctx.shadowOffsetY = offsetY;
-		ctx.shadowBlur = blurRadius;
-		ctx.shadowColor = color;
+	ctx.fillStyle = token.color;
+	if (token.filter != null) {
+		ctx.filter = token.filter;
 	}
 
 	if (token.path) {

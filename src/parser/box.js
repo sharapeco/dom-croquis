@@ -1,21 +1,33 @@
 import { readImage } from "./image.js";
 import { parseColor, isTransparent } from "./utils.js";
+import { parseBoxShadow } from "./parser.js";
 
 export class BoxTokenizer {
-	constructor({ rootRect, getComputedStyle, scale }) {
+	/** @type {HTMLElement} */
+	element;
+	/** @type {Rect} */
+	rootRect;
+	/** @type {() => CSSStyleDeclaration} */
+	getComputedStyle;
+	/** @type {number} */
+	scale;
+
+	constructor({ element, rootRect, getComputedStyle, scale }) {
+		this.element = element;
 		this.rootRect = rootRect;
 		this.getComputedStyle = getComputedStyle;
 		this.scale = scale;
+		this.rects = element.getClientRects();
+		this.css = getComputedStyle(element);
 	}
 
-	async tokenize(elem, state) {
+	async tokenize(state) {
 		// rects.length > 1 の場合は必ず複数行にまたがるインライン要素なので、次のようにレンダリングする
 		// 1. すべての rects の幅を合計した仮想的な矩形を想像する
 		// 2. その矩形の中に background-color, background-image, border, box-shadow を描画する
 		// 3. 各 rect にクリップを適用し、その中に仮想的な矩形を描画する
 		//    このとき、オフセットは現在の rect 以前の rects の幅の合計とする
-
-		const rects = elem.getClientRects();
+		const { element: elem, rects, css } = this;
 
 		// display: contents, display: none はボックスを生成しない
 		if (rects.length === 0) {
@@ -26,9 +38,6 @@ export class BoxTokenizer {
 
 		/** @type {Array<Token | null>} */
 		const tokens = [];
-
-		const css = this.getComputedStyle(elem);
-		this.css = css;
 
 		const backgroundClip = css.backgroundClip;
 		if (backgroundClip === "text") {
@@ -60,8 +69,8 @@ export class BoxTokenizer {
 		}
 
 		// 要素のアウトライン
-		const borderBoxPath = this.getBorderBoxPath(css, virtualRect);
-		const paddingBoxPath = this.getPaddingBoxPath(css, virtualRect);
+		const { radius, borders, borderBoxPath, paddingBoxRadius, paddingBoxPath } =
+			this.getBoxPaths(css, virtualRect);
 
 		// overflow: hidden などの場合はクリップパスを生成する
 		if (state.clipOverflow) {
@@ -78,120 +87,211 @@ export class BoxTokenizer {
 			tokens.push(clipToken);
 		}
 
+		const boxShadows = parseBoxShadow(css.boxShadow);
+
 		const fillColor = parseColor(css.backgroundColor);
-		const borders = this.parseBorders(css);
-		if (fillColor != null || borders.some((b) => b.width > 0)) {
-			const backgroundPath = usePaddingBox ? paddingBoxPath : borderBoxPath;
-			const borderPath = {
-				segments: borderBoxPath.segments.concat(paddingBoxPath.segments),
-				fillRule: "evenodd",
+
+		const backgroundPath = usePaddingBox ? paddingBoxPath : borderBoxPath;
+		const borderPath = {
+			segments: borderBoxPath.segments.concat(paddingBoxPath.segments),
+			fillRule: "evenodd",
+		};
+
+		let offset = 0;
+		let rectIndex = -1;
+		for (const absRect of rects) {
+			rectIndex++;
+			const isFirst = rectIndex === 0;
+			const isLast = rectIndex === rects.length - 1;
+
+			const rect = {
+				x: absRect.x - this.rootRect.x,
+				y: absRect.y - this.rootRect.y,
+				width: absRect.width,
+				height: absRect.height,
 			};
 
-			let offset = 0;
-			for (const rect of rects) {
-				// Add background-color
-				if (fillColor != null) {
-					tokens.push({
-						tag: "background-color",
-						type: "clip",
-						node: elem,
-						x: rect.left - this.rootRect.left,
-						y: rect.top - this.rootRect.top,
-						rect: {
-							width: rect.width,
-							height: rect.height,
-						},
-					});
-					tokens.push({
-						tag: "background-color",
-						type: "fill",
-						node: elem,
-						x: rect.left - this.rootRect.left + (!isVertical ? offset : 0),
-						y: rect.top - this.rootRect.top + (isVertical ? offset : 0),
-						path: backgroundPath,
-						color: fillColor,
-					});
-					tokens.push({
-						tag: "background-color",
-						type: "endClip",
-					});
-				}
+			// Add box-shadow
+			if (boxShadows.length > 0) {
+				const start = isFirst ? 0 : !isVertical ? rect.x : rect.y;
+				const end = isLast
+					? !isVertical
+						? this.rootRect.width
+						: this.rootRect.height
+					: !isVertical
+						? rect.x + rect.width
+						: rect.y + rect.height;
+				const clipRect = !isVertical
+					? {
+							x: start,
+							y: 0,
+							rect: {
+								width: end - start,
+								height: this.rootRect.height,
+							},
+						}
+					: {
+							x: 0,
+							y: start,
+							rect: {
+								width: this.rootRect.width,
+								height: end - start,
+							},
+						};
+				tokens.push({
+					tag: "box-shadow",
+					type: "clip",
+					node: elem,
+					...clipRect,
+				});
 
-				// Add borders
-				const a = [1, 0, -1, 0];
-				const origins = [
-					{ x: 0, y: 0 },
-					{ x: rect.width, y: 0 },
-					{ x: rect.width, y: rect.height },
-					{ x: 0, y: rect.height },
-				];
-				const lengths = [rect.width, rect.height, rect.width, rect.height];
-				const radius = this.prevPaddingBoxRadius;
-				const add = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
-				const flatten = ({ x, y }) => [x, y];
-				for (let i = 0; i < 4; i++) {
-					if (borders[i].width <= 0) {
+				// 矩形を原点に移動する
+				tokens.push({
+					type: "box-shadow",
+					matrix: [1, 0, 0, 1, rect.x, rect.y],
+				});
+
+				// box-shadow は先頭にあるものが一番上に描画される
+				boxShadows.reverse();
+
+				for (const boxShadow of boxShadows) {
+					if (boxShadow.position === "inset") {
+						// Currently unsupported: box-shadow: inset
 						continue;
 					}
-					const rotate = ({ x, y }) => ({
-						x: a[i % 4] * x + a[(i + 1) % 4] * y,
-						y: a[(i + 3) % 4] * x + a[i % 4] * y,
-					});
+					const { color, x, y, blur, spread } = boxShadow;
+					const boxOffset = [spread, spread, spread, spread];
 
-					const origin = origins[i];
-					const len = lengths[i];
-
-					const wN = borders[i].width;
-					const wTS = borders[(i + 3) % 4].width;
-					const wTE = borders[(i + 1) % 4].width;
-					const rSN = radius[(i * 2 + 7) % 8];
-					const rST = radius[(i * 2 + 0) % 8];
-					const rEN = radius[(i * 2 + 2) % 8];
-					const rET = radius[(i * 2 + 1) % 8];
-
-					const S = { x: 0, y: 0 };
-					const E = { x: len, y: 0 };
-					const CSP = { x: wTS + rST, y: wN + rSN };
-					const CEP = { x: len - (wTE + rET), y: wN + rEN };
-					const PS = { x: (CSP.y * wTS) / wN, y: CSP.y };
-					const PE = { x: len - (CEP.y * wTE) / wN, y: CEP.y };
-
-					const clipPath = {
-						segments: [
-							{ command: "M", coordinates: flatten(add(rotate(S), origin)) },
-							{ command: "L", coordinates: flatten(add(rotate(PS), origin)) },
-							{ command: "L", coordinates: flatten(add(rotate(CSP), origin)) },
-							{ command: "L", coordinates: flatten(add(rotate(CEP), origin)) },
-							{ command: "L", coordinates: flatten(add(rotate(PE), origin)) },
-							{ command: "L", coordinates: flatten(add(rotate(E), origin)) },
-							{ command: "Z", coordinates: [] },
-						],
-					};
 					tokens.push({
-						tag: `border-${borders[i].side}`,
-						type: "clip",
-						node: elem,
-						x: rect.left - this.rootRect.left,
-						y: rect.top - this.rootRect.top,
-						path: clipPath,
-					});
-					tokens.push({
-						tag: `border-${borders[i].side}`,
+						tag: "box-shadow",
 						type: "fill",
 						node: elem,
-						x: rect.left - this.rootRect.left + (!isVertical ? offset : 0),
-						y: rect.top - this.rootRect.top + (isVertical ? offset : 0),
-						path: borderPath,
-						color: borders[i].color,
-					});
-					tokens.push({
-						tag: `border-${borders[i].side}`,
-						type: "endClip",
+						x,
+						y,
+						path: this.getPathFromRadius(
+							this.offsetRadius(radius, boxOffset),
+							this.offsetRect(rect, boxOffset),
+						),
+						rect: {
+							width: this.rootRect.width,
+							height: this.rootRect.height,
+						},
+						color,
+						filter: `blur(${blur}px)`,
 					});
 				}
 
-				offset -= isVertical ? rect.height : rect.width;
+				tokens.push({ tag: "box-shadow", type: "endTransform" });
+				tokens.push({ tag: "box-shadow", type: "endClip" });
 			}
+
+			// 矩形を原点に移動する
+			tokens.push({
+				tag: "background-and-border",
+				type: "transform",
+				matrix: [1, 0, 0, 1, rect.x, rect.y],
+			});
+
+			// Add background-color
+			if (fillColor != null) {
+				tokens.push({
+					tag: "background-color",
+					type: "clip",
+					node: elem,
+					x: 0,
+					y: 0,
+					rect: {
+						width: rect.width,
+						height: rect.height,
+					},
+				});
+				tokens.push({
+					tag: "background-color",
+					type: "fill",
+					node: elem,
+					x: !isVertical ? offset : 0,
+					y: isVertical ? offset : 0,
+					path: backgroundPath,
+					color: fillColor,
+				});
+				tokens.push({ tag: "background-color", type: "endClip" });
+			}
+
+			// Add borders
+			const a = [1, 0, -1, 0];
+			const origins = [
+				{ x: 0, y: 0 },
+				{ x: rect.width, y: 0 },
+				{ x: rect.width, y: rect.height },
+				{ x: 0, y: rect.height },
+			];
+			const lengths = [rect.width, rect.height, rect.width, rect.height];
+			const add = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
+			const flatten = ({ x, y }) => [x, y];
+			for (let i = 0; i < 4; i++) {
+				if (borders[i].width <= 0) {
+					continue;
+				}
+				const rotate = ({ x, y }) => ({
+					x: a[i % 4] * x + a[(i + 1) % 4] * y,
+					y: a[(i + 3) % 4] * x + a[i % 4] * y,
+				});
+
+				const origin = origins[i];
+				const len = lengths[i];
+
+				const wN = borders[i].width;
+				const wTS = borders[(i + 3) % 4].width;
+				const wTE = borders[(i + 1) % 4].width;
+				const rSN = paddingBoxRadius[(i * 2 + 7) % 8];
+				const rST = paddingBoxRadius[(i * 2 + 0) % 8];
+				const rEN = paddingBoxRadius[(i * 2 + 2) % 8];
+				const rET = paddingBoxRadius[(i * 2 + 1) % 8];
+
+				const S = { x: 0, y: 0 };
+				const E = { x: len, y: 0 };
+				const CSP = { x: wTS + rST, y: wN + rSN };
+				const CEP = { x: len - (wTE + rET), y: wN + rEN };
+				const PS = { x: (CSP.y * wTS) / wN, y: CSP.y };
+				const PE = { x: len - (CEP.y * wTE) / wN, y: CEP.y };
+
+				const clipPath = {
+					segments: [
+						{ command: "M", coordinates: flatten(add(rotate(S), origin)) },
+						{ command: "L", coordinates: flatten(add(rotate(PS), origin)) },
+						{ command: "L", coordinates: flatten(add(rotate(CSP), origin)) },
+						{ command: "L", coordinates: flatten(add(rotate(CEP), origin)) },
+						{ command: "L", coordinates: flatten(add(rotate(PE), origin)) },
+						{ command: "L", coordinates: flatten(add(rotate(E), origin)) },
+						{ command: "Z", coordinates: [] },
+					],
+				};
+				tokens.push({
+					tag: `border-${borders[i].side}`,
+					type: "clip",
+					node: elem,
+					x: 0,
+					y: 0,
+					path: clipPath,
+				});
+				tokens.push({
+					tag: `border-${borders[i].side}`,
+					type: "fill",
+					node: elem,
+					x: !isVertical ? offset : 0,
+					y: isVertical ? offset : 0,
+					path: borderPath,
+					color: borders[i].color,
+				});
+				tokens.push({
+					tag: `border-${borders[i].side}`,
+					type: "endClip",
+				});
+			}
+
+			tokens.push({ tag: "background-and-border", type: "endTransform" });
+
+			offset -= isVertical ? absRect.height : absRect.width;
 		}
 
 		const position = {
@@ -218,37 +318,68 @@ export class BoxTokenizer {
 	}
 
 	/**
-	 * rect の左上を原点とする border-box の角丸半径を取得する
+	 * rect の左上を原点とする border-box, padding-box の角丸半径を取得する
 	 *
 	 * @param {CSSStyleDeclaration} css
 	 * @param {Rect} rect
-	 * @returns {Path}
+	 * @returns {{
+	 *   radius: number[],
+	 *   borders: { width: number, color: string }[],
+	 *   borderBoxPath: Path,
+	 *   paddingBoxRadius: number[],
+	 *   paddingBoxPath: Path
+	 * }}
 	 */
-	getBorderBoxPath(css, rect) {
+	getBoxPaths(css, rect) {
 		const radius = this.parseBorderRadius(css, rect);
-		return this.getPathFromRadius(radius, rect);
+		const borders = this.parseBorders(css);
+
+		const borderBoxPath = this.getPathFromRadius(radius, rect);
+
+		const paddingBoxOffset = borders.map((b) => -b.width);
+		const paddingBoxRadius = this.offsetRadius(radius, paddingBoxOffset);
+		const paddingBoxPath = this.getPathFromRadius(
+			paddingBoxRadius,
+			this.offsetRect(rect, paddingBoxOffset),
+		);
+
+		return {
+			radius,
+			borders,
+			borderBoxPath,
+			paddingBoxRadius,
+			paddingBoxPath,
+		};
 	}
 
 	/**
-	 * rect の左上を原点とする padding-box の角丸半径を取得する
+	 * 角丸半径をオフセットする
 	 *
-	 * @param {CSSStyleDeclaration} css
-	 * @param {Rect} rect
-	 * @returns {Path}
+	 * @param {number[]} radius 要素数8の角丸半径の列
+	 * @param {number[]} offset 要素数4のオフセットの列（top, right, bottom, left の順; 正の値は外側, 負の値は内側）
+	 * @returns {number[]} 要素数8の角丸半径の列
 	 */
-	getPaddingBoxPath(css, rect) {
-		const borders = this.parseBorders(css);
-		const radius = this.parseBorderRadius(css, rect).map((r, index) => {
-			const borderWidth = borders[index >> 1].width;
-			return Math.max(0, r - borderWidth);
+	offsetRadius(radius, offset) {
+		return radius.map((r, index) => {
+			const j = index >> 1;
+			return Math.max(0, r + offset[j]);
 		});
-		this.prevPaddingBoxRadius = radius;
-		return this.getPathFromRadius(radius, {
-			x: borders[3].width,
-			y: borders[0].width,
-			width: rect.width - borders[1].width - borders[3].width,
-			height: rect.height - borders[0].width - borders[2].width,
-		});
+	}
+
+	/**
+	 * 矩形をオフセットする
+	 *
+	 * @param {Rect} rect
+	 * @param {number[]} offset 要素数4のオフセットの列（top, right, bottom, left の順; 正の値は外側, 負の値は内側）
+	 * @returns {Rect} オフセットした矩形
+	 */
+	offsetRect(rect, offset) {
+		return {
+			x: rect.x - offset[3],
+			y: rect.y - offset[0],
+			width: rect.width + offset[1] + offset[3],
+			height: rect.height + offset[0] + offset[2],
+		};
 	}
 
 	/**

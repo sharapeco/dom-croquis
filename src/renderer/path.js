@@ -17,3 +17,12 @@ export function createPath2d(path) {
 		.join(" ");
 	return new Path2D(d);
 }
+
+window.p2d = function p2d(path) {
+	return path.segments
+		.map((segment) => {
+			const { command, coordinates } = segment;
+			return `${command}${coordinates.join(" ")}`;
+		})
+		.join(" ");
+};

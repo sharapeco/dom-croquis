@@ -1,5 +1,5 @@
 /**
- * @typedef {"clip" | "endClip" | "fill" | "text" | "image"} TokenType
+ * @typedef {"clip" | "endClip" | "transform" | "endTransform" | "fill" | "text" | "image"} TokenType
  *
  * @typedef {Object} Coordinates
  * @property {number} x
@@ -51,15 +51,16 @@
  *
  * @typedef {BaseToken & Coordinates & Shape} ClipToken
  *
- * @typedef {Object} BoxShadow
- * @property {number} offsetX
- * @property {number} offsetY
- * @property {number} blurRadius
- * @property {string} color
+ * @typedef {number[6]} TransformMatrix
+ *
+ * @typedef {Object} TransformProp
+ * @property {TransformMatrix} matrix
+ *
+ * @typedef {BaseToken & TransformProp} TransformToken
  *
  * @typedef {Object} FillTokenProp
  * @property {string} color
- * @property {BoxShadow=} boxShadow
+ * @property {string} [filter]
  *
  * @typedef {BaseToken & Coordinates & Shape & FillTokenProp} FillToken
  *
@@ -99,7 +100,7 @@
  *
  * @typedef {Coordinates & Rect} ImageClip
  *
- * @typedef {FillToken | TextToken | ImageToken} Token
+ * @typedef {ClipToken | TransformToken | FillToken | TextToken | ImageToken} Token
  */
 
 export default {};

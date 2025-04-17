@@ -8,7 +8,6 @@ import { parseFontProperties } from "./text.js";
  * @typedef {import("../types.js").TextToken} TextToken
  * @typedef {import("../types.js").ImageToken} ImageToken
  * @typedef {import("../types.js").Rect} Rect
- * @typedef {import("../types.js").BoxShadow} BoxShadow
  * @typedef {import("../types.js").TextProp} TextProp
  *
  * @typedef {Object} State
@@ -145,10 +144,12 @@ export class Tokenizer {
 	 */
 	async readElementTokens(elem, state) {
 		const boxTokenizer = new BoxTokenizer({
+			element: elem,
 			rootRect: this.rootRect,
 			getComputedStyle: this.getComputedStyle,
+			scale: this.scale,
 		});
-		return await boxTokenizer.tokenize(elem, state);
+		return await boxTokenizer.tokenize(state);
 	}
 
 	/**

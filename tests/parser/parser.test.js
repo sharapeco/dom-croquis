@@ -1,20 +1,46 @@
 import { parseCSSValue } from "../../src/parser/parser.js";
 
 describe("parseCSSValue", () => {
-	test("should parse basic CSS values", () => {
-		const input =
-			"inset 0 0 2px rgb(128, 64, 0), -10px 10px 5px rgba(0, 0, 0, 0.3)";
+	test("should parse basic box-shadow values", () => {
+		const input = "rgb(0, 0, 0, 0.5) 2px 5px 7px";
+		const expected = [
+			{ type: "color", s: "rgb(0, 0, 0, 0.5)" },
+			{ type: "length", f: 2 },
+			{ type: "length", f: 5 },
+			{ type: "length", f: 7 },
+		];
+
+		expect(parseCSSValue(input)).toEqual(expected);
+	});
+
+	test("should parse inset box-shadow value", () => {
+		const input = "inset 0 0 2px rgb(128, 64, 0)";
 		const expected = [
 			{ type: "keyword", s: "inset" },
 			{ type: "length", f: 0 },
 			{ type: "length", f: 0 },
 			{ type: "length", f: 2 },
 			{ type: "color", s: "rgb(128, 64, 0)" },
-			{ type: "separator", s: "," },
-			{ type: "length", f: -10 },
-			{ type: "length", f: 10 },
+		];
+
+		expect(parseCSSValue(input)).toEqual(expected);
+	});
+
+	test("should parse multiple box-shadow values", () => {
+		const input =
+			"rgba(0, 36, 96, 0.5) 2px 7px 5px -5px, rgb(255, 204, 0) -5px -5px 0px 0px";
+		const expected = [
+			{ type: "color", s: "rgba(0, 36, 96, 0.5)" },
+			{ type: "length", f: 2 },
+			{ type: "length", f: 7 },
 			{ type: "length", f: 5 },
-			{ type: "color", s: "rgba(0, 0, 0, 0.3)" },
+			{ type: "length", f: -5 },
+			{ type: "separator", s: "," },
+			{ type: "color", s: "rgb(255, 204, 0)" },
+			{ type: "length", f: -5 },
+			{ type: "length", f: -5 },
+			{ type: "length", f: 0 },
+			{ type: "length", f: 0 },
 		];
 
 		expect(parseCSSValue(input)).toEqual(expected);
