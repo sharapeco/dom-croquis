@@ -23,7 +23,7 @@ export async function htmlToCanvas(root, options = {}) {
 	document.body.appendChild(iframe);
 	const targetClone = await promise;
 
-	const tokenizer = new Tokenizer(targetClone, getComputedStyle);
+	const tokenizer = new Tokenizer(targetClone, scale);
 	const tokens = await tokenizer.tokenize();
 
 	const bound = root.getBoundingClientRect();
