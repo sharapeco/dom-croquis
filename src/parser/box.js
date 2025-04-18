@@ -1,6 +1,12 @@
 import { readImage } from "./image.js";
-import { parseColor, isTransparent } from "./utils.js";
-import { parseBoxShadow } from "./parser.js";
+import {
+	compositePath,
+	polygonPath,
+	rectPath,
+	roundedRectPath,
+} from "./path.js";
+import { offsetRadius, offsetRect } from "./utils.js";
+import { parseColor, isTransparent, parseBoxShadow } from "./parser.js";
 
 export class BoxTokenizer {
 	/** @type {HTMLElement} */
@@ -48,21 +54,21 @@ export class BoxTokenizer {
 		const usePaddingBox = css.backgroundClip === "padding-box";
 		const isVertical =
 			css.writingMode === "vertical-rl" || css.writingMode === "vertical-lr";
+		const wmX = isVertical ? "y" : "x";
+		const wmY = isVertical ? "x" : "y";
+		const wmWidth = isVertical ? "height" : "width";
+		const wmHeight = isVertical ? "width" : "height";
 
 		// インライン要素は行ごとに矩形を生成する
-		const virtualRect = !isVertical
-			? {
-					x: 0,
-					y: 0,
-					width: Array.from(rects).reduce((acc, rect) => acc + rect.width, 0),
-					height: mainRect.height,
-				}
-			: {
-					x: 0,
-					y: 0,
-					width: mainRect.width,
-					height: Array.from(rects).reduce((acc, rect) => acc + rect.height, 0),
-				};
+		const virtualRect = {
+			[wmX]: 0,
+			[wmY]: 0,
+			[wmWidth]: Array.from(rects).reduce(
+				(acc, rect) => acc + rect[wmWidth],
+				0,
+			),
+			[wmHeight]: mainRect[wmHeight],
+		};
 
 		if (virtualRect.width <= 0 || virtualRect.height <= 0) {
 			return [];
@@ -92,10 +98,10 @@ export class BoxTokenizer {
 		const fillColor = parseColor(css.backgroundColor);
 
 		const backgroundPath = usePaddingBox ? paddingBoxPath : borderBoxPath;
-		const borderPath = {
-			segments: borderBoxPath.segments.concat(paddingBoxPath.segments),
-			fillRule: "evenodd",
-		};
+		const borderPath = compositePath(
+			[borderBoxPath, paddingBoxPath],
+			"evenodd",
+		);
 
 		let offset = 0;
 		let rectIndex = -1;
@@ -112,53 +118,47 @@ export class BoxTokenizer {
 			};
 
 			// Add box-shadow
-			if (boxShadows.length > 0) {
-				const start = isFirst ? 0 : !isVertical ? rect.x : rect.y;
-				const end = isLast
-					? !isVertical
-						? this.rootRect.width
-						: this.rootRect.height
-					: !isVertical
-						? rect.x + rect.width
-						: rect.y + rect.height;
-				const clipRect = !isVertical
-					? {
-							x: start,
-							y: 0,
-							rect: {
-								width: end - start,
-								height: this.rootRect.height,
-							},
-						}
-					: {
-							x: 0,
-							y: start,
-							rect: {
-								width: this.rootRect.width,
-								height: end - start,
-							},
-						};
+			const outsetBoxShadows = boxShadows
+				.filter((boxShadow) => boxShadow.position === "outset")
+				.reverse(); // box-shadow は先頭にあるものが一番上に描画される
+			if (outsetBoxShadows.length > 0) {
+				// 行ごとに分割される場合はマスクをかける
+				const start = isFirst ? 0 : rect[wmX];
+				const end = isLast ? this.rootRect[wmWidth] : this.rootRect[wmHeight];
 				tokens.push({
 					tag: "box-shadow",
 					type: "clip",
 					node: elem,
-					...clipRect,
+					[wmX]: start,
+					[wmY]: 0,
+					rect: {
+						[wmWidth]: end - start,
+						[wmHeight]: this.rootRect[wmHeight],
+					},
 				});
 
-				// 矩形を原点に移動する
+				// border-box の内側に描画されないようマスクをかける
+				let bleeding = 0;
+				for (const boxShadow of outsetBoxShadows) {
+					const { x, y, blur, spread } = boxShadow;
+					bleeding = Math.max(
+						bleeding,
+						blur + spread + Math.max(x < 0 ? -x : x, y < 0 ? -y : y),
+					);
+				}
+				const outerPath = rectPath(
+					offsetRect(virtualRect, [bleeding, bleeding, bleeding, bleeding]),
+				);
 				tokens.push({
-					type: "box-shadow",
-					matrix: [1, 0, 0, 1, rect.x, rect.y],
+					tag: "box-shadow",
+					type: "clip",
+					node: elem,
+					[wmX]: offset + rect[wmX],
+					[wmY]: rect[wmY],
+					path: compositePath([outerPath, borderBoxPath], "evenodd"),
 				});
-
-				// box-shadow は先頭にあるものが一番上に描画される
-				boxShadows.reverse();
 
 				for (const boxShadow of boxShadows) {
-					if (boxShadow.position === "inset") {
-						// Currently unsupported: box-shadow: inset
-						continue;
-					}
 					const { color, x, y, blur, spread } = boxShadow;
 					const boxOffset = [spread, spread, spread, spread];
 
@@ -166,22 +166,19 @@ export class BoxTokenizer {
 						tag: "box-shadow",
 						type: "fill",
 						node: elem,
-						x,
-						y,
-						path: this.getPathFromRadius(
-							this.offsetRadius(radius, boxOffset),
-							this.offsetRect(rect, boxOffset),
+						[wmX]: rect[wmX] + boxShadow[wmX] + offset,
+						[wmY]: rect[wmY] + boxShadow[wmY],
+						path: roundedRectPath(
+							offsetRect(virtualRect, boxOffset),
+							offsetRadius(radius, boxOffset),
 						),
-						rect: {
-							width: this.rootRect.width,
-							height: this.rootRect.height,
-						},
 						color,
 						filter: `blur(${blur}px)`,
 					});
+					console.log(tokens[tokens.length - 1]);
 				}
 
-				tokens.push({ tag: "box-shadow", type: "endTransform" });
+				tokens.push({ tag: "box-shadow", type: "endClip" });
 				tokens.push({ tag: "box-shadow", type: "endClip" });
 			}
 
@@ -209,12 +206,52 @@ export class BoxTokenizer {
 					tag: "background-color",
 					type: "fill",
 					node: elem,
-					x: !isVertical ? offset : 0,
-					y: isVertical ? offset : 0,
+					[wmX]: offset,
+					[wmY]: 0,
 					path: backgroundPath,
 					color: fillColor,
 				});
 				tokens.push({ tag: "background-color", type: "endClip" });
+			}
+
+			// Add inset box-shadow
+			const insetBoxShadows = boxShadows
+				.filter((boxShadow) => boxShadow.position === "inset")
+				.reverse(); // box-shadow は先頭にあるものが一番上に描画される
+			if (insetBoxShadows.length > 0) {
+				tokens.push({
+					tag: "box-shadow-inset",
+					type: "clip",
+					node: elem,
+					x: 0,
+					y: 0,
+					path: paddingBoxPath,
+				});
+
+				for (const boxShadow of insetBoxShadows) {
+					const { color, x, y, blur, spread } = boxShadow;
+					const bleeding = blur + Math.max(x < 0 ? -x : x, y < 0 ? -y : y);
+					const outerPath = rectPath(
+						offsetRect(virtualRect, [bleeding, bleeding, bleeding, bleeding]),
+					);
+					const innerOffset = [-spread, -spread, -spread, -spread];
+					const innerPath = roundedRectPath(
+						offsetRect(virtualRect, innerOffset),
+						offsetRadius(radius, innerOffset),
+					);
+					tokens.push({
+						tag: "box-shadow-inset",
+						type: "fill",
+						node: elem,
+						[wmX]: offset + boxShadow[wmX],
+						[wmY]: boxShadow[wmY],
+						path: compositePath([outerPath, innerPath], "evenodd"),
+						color,
+						filter: `blur(${blur}px)`,
+					});
+				}
+
+				tokens.push({ tag: "box-shadow-inset", type: "endClip" });
 			}
 
 			// Add borders
@@ -227,7 +264,6 @@ export class BoxTokenizer {
 			];
 			const lengths = [rect.width, rect.height, rect.width, rect.height];
 			const add = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
-			const flatten = ({ x, y }) => [x, y];
 			for (let i = 0; i < 4; i++) {
 				if (borders[i].width <= 0) {
 					continue;
@@ -255,17 +291,9 @@ export class BoxTokenizer {
 				const PS = { x: (CSP.y * wTS) / wN, y: CSP.y };
 				const PE = { x: len - (CEP.y * wTE) / wN, y: CEP.y };
 
-				const clipPath = {
-					segments: [
-						{ command: "M", coordinates: flatten(add(rotate(S), origin)) },
-						{ command: "L", coordinates: flatten(add(rotate(PS), origin)) },
-						{ command: "L", coordinates: flatten(add(rotate(CSP), origin)) },
-						{ command: "L", coordinates: flatten(add(rotate(CEP), origin)) },
-						{ command: "L", coordinates: flatten(add(rotate(PE), origin)) },
-						{ command: "L", coordinates: flatten(add(rotate(E), origin)) },
-						{ command: "Z", coordinates: [] },
-					],
-				};
+				const clipPath = polygonPath(
+					[S, PS, CSP, CEP, PE, E].map((point) => add(rotate(point), origin)),
+				);
 				tokens.push({
 					tag: `border-${borders[i].side}`,
 					type: "clip",
@@ -278,8 +306,8 @@ export class BoxTokenizer {
 					tag: `border-${borders[i].side}`,
 					type: "fill",
 					node: elem,
-					x: !isVertical ? offset : 0,
-					y: isVertical ? offset : 0,
+					[wmX]: offset,
+					[wmY]: 0,
 					path: borderPath,
 					color: borders[i].color,
 				});
@@ -291,7 +319,7 @@ export class BoxTokenizer {
 
 			tokens.push({ tag: "background-and-border", type: "endTransform" });
 
-			offset -= isVertical ? absRect.height : absRect.width;
+			offset -= rect[wmWidth];
 		}
 
 		const position = {
@@ -334,13 +362,13 @@ export class BoxTokenizer {
 		const radius = this.parseBorderRadius(css, rect);
 		const borders = this.parseBorders(css);
 
-		const borderBoxPath = this.getPathFromRadius(radius, rect);
+		const borderBoxPath = roundedRectPath(rect, radius);
 
 		const paddingBoxOffset = borders.map((b) => -b.width);
-		const paddingBoxRadius = this.offsetRadius(radius, paddingBoxOffset);
-		const paddingBoxPath = this.getPathFromRadius(
+		const paddingBoxRadius = offsetRadius(radius, paddingBoxOffset);
+		const paddingBoxPath = roundedRectPath(
+			offsetRect(rect, paddingBoxOffset),
 			paddingBoxRadius,
-			this.offsetRect(rect, paddingBoxOffset),
 		);
 
 		return {
@@ -349,36 +377,6 @@ export class BoxTokenizer {
 			borderBoxPath,
 			paddingBoxRadius,
 			paddingBoxPath,
-		};
-	}
-
-	/**
-	 * 角丸半径をオフセットする
-	 *
-	 * @param {number[]} radius 要素数8の角丸半径の列
-	 * @param {number[]} offset 要素数4のオフセットの列（top, right, bottom, left の順; 正の値は外側, 負の値は内側）
-	 * @returns {number[]} 要素数8の角丸半径の列
-	 */
-	offsetRadius(radius, offset) {
-		return radius.map((r, index) => {
-			const j = index >> 1;
-			return Math.max(0, r + offset[j]);
-		});
-	}
-
-	/**
-	 * 矩形をオフセットする
-	 *
-	 * @param {Rect} rect
-	 * @param {number[]} offset 要素数4のオフセットの列（top, right, bottom, left の順; 正の値は外側, 負の値は内側）
-	 * @returns {Rect} オフセットした矩形
-	 */
-	offsetRect(rect, offset) {
-		return {
-			x: rect.x - offset[3],
-			y: rect.y - offset[0],
-			width: rect.width + offset[1] + offset[3],
-			height: rect.height + offset[0] + offset[2],
 		};
 	}
 
@@ -421,7 +419,7 @@ export class BoxTokenizer {
 	 */
 	parseBorderRadiusValue(value, rect) {
 		if (value == null || value === "") {
-			return { h: 0, hOU: "px", v: 0, vOU: "px" };
+			return { h: 0, v: 0 };
 		}
 		const vs = value.split(" ");
 		const withUnit = vs.length === 1 ? [vs[0], vs[0]] : vs;
@@ -436,83 +434,6 @@ export class BoxTokenizer {
 		return {
 			h: pixels[0],
 			v: pixels[1],
-		};
-	}
-
-	/**
-	 * @param {number[]} radius
-	 * @param {Rect} rect
-	 * @returns {Path}
-	 */
-	getPathFromRadius(radius, rect) {
-		const segments = [
-			{
-				command: "M",
-				coordinates: [rect.x + radius[0], rect.y],
-			},
-			{ command: "L", coordinates: [rect.x + rect.width - radius[1], rect.y] },
-			radius[1] > 0 &&
-				radius[2] > 0 && {
-					command: "A",
-					coordinates: [
-						radius[1],
-						radius[2],
-						0,
-						0,
-						1,
-						rect.x + rect.width,
-						rect.y + radius[2],
-					],
-				},
-			{
-				command: "L",
-				coordinates: [rect.x + rect.width, rect.y + rect.height - radius[3]],
-			},
-			radius[3] > 0 &&
-				radius[4] > 0 && {
-					command: "A",
-					coordinates: [
-						radius[4],
-						radius[3],
-						0,
-						0,
-						1,
-						rect.x + rect.width - radius[4],
-						rect.y + rect.height,
-					],
-				},
-			{ command: "L", coordinates: [rect.x + radius[5], rect.y + rect.height] },
-			radius[5] > 0 &&
-				radius[6] > 0 && {
-					command: "A",
-					coordinates: [
-						radius[5],
-						radius[6],
-						0,
-						0,
-						1,
-						rect.x,
-						rect.y + rect.height - radius[6],
-					],
-				},
-			{ command: "L", coordinates: [rect.x, rect.y + radius[7]] },
-			radius[7] > 0 &&
-				radius[0] > 0 && {
-					command: "A",
-					coordinates: [
-						radius[0],
-						radius[7],
-						0,
-						0,
-						1,
-						rect.x + radius[0],
-						rect.y,
-					],
-				},
-			{ command: "Z", coordinates: [] },
-		];
-		return {
-			segments: segments.filter((segment) => segment !== false),
 		};
 	}
 

@@ -1,5 +1,29 @@
 /**
+ * Parses a color value.
+ *
+ * @param {string} colorValue
+ * @returns {string | undefined} Color string. undefined if the color is transparent.
+ */
+export function parseColor(colorValue) {
+	if (isTransparent(colorValue)) {
+		return;
+	}
+	return colorValue;
+}
+
+/**
+ * Checks if the color obtained by getComputedStyle() is transparent.
+ *
+ * @param {string} color
+ * @returns {boolean}
+ */
+export function isTransparent(color) {
+	return color === "transparent" || color === "rgba(0, 0, 0, 0)";
+}
+
+/**
  * Parse CSS value string and return an array of tokens
+ *
  * @param {string} input - CSS value string to parse
  * @returns {Array<{type: string, s?: string, f?: number}>} Array of tokens
  */
