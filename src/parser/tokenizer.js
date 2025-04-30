@@ -92,7 +92,10 @@ export class Tokenizer {
 				const css = this.getComputedStyle(node);
 				tokens.push({
 					type: "stackingContext",
-					zIndex: !state.stackingContext.z || css.zIndex === "auto" ? 0 : Number.parseInt(css.zIndex),
+					zIndex:
+						!state.stackingContext.z || css.zIndex === "auto"
+							? 0
+							: Number.parseInt(css.zIndex),
 					reason: state.stackingContext.reason,
 				});
 			}
@@ -100,6 +103,10 @@ export class Tokenizer {
 			switch (node.nodeType) {
 				case Node.ELEMENT_NODE:
 					if (!state.hidden) {
+						const tagName = node.tagName.toLowerCase();
+						if (tagName === "x-text" || tagName === "x-char") {
+							break;
+						}
 						const elementTokens = await this.readElementTokens(node, state);
 						for (const token of elementTokens) {
 							tokens.push(token);

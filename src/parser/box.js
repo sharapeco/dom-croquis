@@ -317,7 +317,16 @@ export class BoxTokenizer {
 				});
 			}
 
-			tokens.push({ tag: "background-and-border", type: "endTransform" });
+			if (
+				tokens.length > 0 &&
+				tokens[tokens.length - 1].tag === "background-and-border" &&
+				tokens[tokens.length - 1].type === "transform"
+			) {
+				// No contents
+				tokens.pop();
+			} else {
+				tokens.push({ tag: "background-and-border", type: "endTransform" });
+			}
 
 			offset -= rect[wmWidth];
 		}
