@@ -1,8 +1,12 @@
 import { BoxTokenizer } from "./box.js";
 import { parseFontProperties } from "./text.js";
+import { createsStackingContext } from "./createsStackingContext.js";
+import { sortByZIndex } from "./sortByZIndex.js";
 
 /**
  * @typedef {import("../types.js").Token} Token
+ * @typedef {import("../types.js").StackingContextProp} StackingContextProp
+ * @typedef {import("../types.js").StackingContextToken} StackingContextToken
  * @typedef {import("../types.js").ClipToken} ClipToken
  * @typedef {import("../types.js").FillToken} FillToken
  * @typedef {import("../types.js").TextToken} TextToken
@@ -13,12 +17,14 @@ import { parseFontProperties } from "./text.js";
  * @typedef {Object} State
  * @property {boolean} clipOverflow
  * @property {boolean} hidden
+ * @property {StackingContextProp | null} stackingContext
  */
 
 /** @type {State} */
 const defaultState = {
 	clipOverflow: false,
 	hidden: false,
+	stackingContext: null,
 };
 
 const textSpacingTrimList =
@@ -30,6 +36,9 @@ export class Tokenizer {
 	 * @param {number} scale
 	 */
 	constructor(root, scale) {
+		if (typeof [].toSorted !== "function") {
+			throw new Error("Stable sort is not supported");
+		}
 		const rects = root.getClientRects();
 		if (rects.length === 0) {
 			throw new Error("Root element has no bounding box");
@@ -54,13 +63,22 @@ export class Tokenizer {
 		const pushState = (state) => {
 			states.push(state);
 		};
+
 		const popState = () => {
 			const state = states.pop();
+
 			if (state.clipOverflow && !state.hidden) {
 				tokens.push({
 					type: "endClip",
 				});
 			}
+
+			if (!state.hidden && state.stackingContext != null) {
+				tokens.push({
+					type: "endStackingContext",
+				});
+			}
+
 			return state;
 		};
 
@@ -69,6 +87,15 @@ export class Tokenizer {
 		walk: while (node != null && node !== this.root.nextSibling) {
 			const state = this.readState(node, states[states.length - 1]);
 			pushState(state);
+
+			if (!state.hidden && state.stackingContext != null) {
+				const css = this.getComputedStyle(node);
+				tokens.push({
+					type: "stackingContext",
+					zIndex: !state.stackingContext.z || css.zIndex === "auto" ? 0 : Number.parseInt(css.zIndex),
+					reason: state.stackingContext.reason,
+				});
+			}
 
 			switch (node.nodeType) {
 				case Node.ELEMENT_NODE:
@@ -107,7 +134,7 @@ export class Tokenizer {
 			}
 		}
 
-		return tokens;
+		return sortByZIndex(tokens);
 	}
 
 	/**
@@ -117,7 +144,7 @@ export class Tokenizer {
 	 */
 	readState(node, parentState) {
 		if (node.nodeType !== Node.ELEMENT_NODE) {
-			return { ...parentState, clipOverflow: false };
+			return { ...parentState, clipOverflow: false, stackingContext: null };
 		}
 
 		const { display, opacity, overflow } = this.getComputedStyle(node);
@@ -134,6 +161,7 @@ export class Tokenizer {
 					overflow === "scroll" ||
 					overflow === "auto"),
 			hidden: parentState.hidden || display === "none" || opacity === "0",
+			stackingContext: createsStackingContext(node),
 		};
 	}
 

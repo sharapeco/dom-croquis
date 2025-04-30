@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>z-index and Stacking Context</title>
+	<link rel="stylesheet" href="examples.css">
+	<style>
+		.layout-horizontal {
+			width: 60em;
+		}
+
+		#input {
+			position: relative;
+			padding: 1em;
+			font-family: system-ui, sans-serif;
+			color: #0e285c;
+			background: #c2b4a6;
+		}
+
+		p {
+			z-index: 1;
+		}
+
+		.undef {
+			color: #777;
+		}
+
+		.static {
+			position: static;
+		}
+
+		.relative {
+			position: relative;
+		}
+
+		.absolute {
+			position: absolute;
+		}
+
+		.fixed {
+			position: fixed;
+		}
+
+		.sticky {
+			position: sticky;
+		}
+
+		.flex {
+			display: flex;
+		}
+
+		.grid {
+			display: grid;
+		}
+
+		.opacity {
+			opacity: 0.5;
+		}
+
+		.mix-blend-mode-normal {
+			mix-blend-mode: normal;
+		}
+
+		.mix-blend-mode-multiply {
+			mix-blend-mode: multiply;
+		}
+
+		.mix-blend-mode-screen {
+			mix-blend-mode: screen;
+			color: #fff;
+		}
+
+		.mix-blend-mode-overlay {
+			mix-blend-mode: overlay;
+		}
+
+		.mix-blend-mode-darken {
+			mix-blend-mode: darken;
+		}
+
+		.mix-blend-mode-lighten {
+			mix-blend-mode: lighten;
+			color: #fff;
+		}
+
+		.mix-blend-mode-color-dodge {
+			mix-blend-mode: color-dodge;
+		}
+
+		.mix-blend-mode-color-burn {
+			mix-blend-mode: color-burn;
+		}
+
+		.mix-blend-mode-hard-light {
+			mix-blend-mode: hard-light;
+		}
+
+		.mix-blend-mode-soft-light {
+			mix-blend-mode: soft-light;
+		}
+
+		.mix-blend-mode-difference {
+			mix-blend-mode: difference;
+		}
+
+		.mix-blend-mode-exclusion {
+			mix-blend-mode: exclusion;
+		}
+
+		.mix-blend-mode-hue {
+			mix-blend-mode: hue;
+		}
+
+		.mix-blend-mode-saturation {
+			mix-blend-mode: saturation;
+		}
+
+		.mix-blend-mode-color {
+			mix-blend-mode: color;
+		}
+
+		.mix-blend-mode-luminosity {
+			mix-blend-mode: luminosity;
+		}
+
+		.no-transform {
+			transform: none;
+		}
+
+		.transform {
+			transform: translate(10px, 5px);
+		}
+
+		.scale {
+			transform: scale(1.1);
+			transform-origin: left top;
+		}
+
+		.rotate {
+			transform: rotate(5deg);
+			transform-origin: left top;
+		}
+
+		.skew {
+			transform: skew(5deg);
+			transform-origin: left top;
+		}
+
+		.translate {
+			transform: translate(10px, 5px);
+		}
+
+		.filter {
+			filter: blur(1px);
+		}
+
+		.backdrop-filter {
+			backdrop-filter: blur(1px);
+		}
+
+		.perspective {
+			perspective: 1000px;
+		}
+
+		.clip-path {
+			clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+		}
+
+		.mask {
+			mask: url(/assets/img/suzume-512x512.jpg);
+			mask-mode: luminance;
+			mask-size: auto 50px;
+			mask-position: 50% 50%;
+			mask-repeat: repeat;
+		}
+
+		.mask-border {
+			border: .5em solid;
+			mask-border: url(/assets/img/suzume-512x512.jpg);
+			mask-border-repeat: repeat;
+			mask-border-slice: 100% 100% 100% 100%;
+			mask-border-width: 100% 100% 100% 100%;
+			mask-border-outset: 0 0 0 0;
+		}
+
+		.isolation {
+			isolation: isolate;
+		}
+
+		#stem {
+			position: absolute;
+			z-index: 0;
+			top: 0;
+			left: 2em;
+			bottom: 0;
+			width: 2em;
+			background: #988b6f;
+			pointer-events: none;
+		}
+
+		p,
+		.spacer {
+			line-height: 1.25;
+			min-height: 1.25em;
+			margin: 1em 0;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>z-index</h1>
+
+	<div class="layout-horizontal">
+		<div id="input">
+			<p>position: (initial)</p>
+			<p class="static">position: static</p>
+			<p class="relative">position: relative</p>
+			<p class="absolute">position: absolute</p>
+			<div class="spacer"></div>
+			<p class="fixed">position: fixed</p>
+			<div class="spacer"></div>
+			<p class="sticky">position: sticky</p>
+			<div class="spacer"></div>
+			<div class="flex">
+				<p>flex item</p>
+			</div>
+			<div class="grid">
+				<p>grid item</p>
+			</div>
+			<p class="opacity">opacity: 0.5</p>
+			<p class="mix-blend-mode-normal">mix-blend-mode: normal</p>
+			<p class="mix-blend-mode-multiply">mix-blend-mode: multiply</p>
+			<p class="mix-blend-mode-screen">mix-blend-mode: screen</p>
+			<p class="mix-blend-mode-overlay">mix-blend-mode: overlay</p>
+			<p class="mix-blend-mode-darken">mix-blend-mode: darken</p>
+			<p class="mix-blend-mode-lighten">mix-blend-mode: lighten</p>
+			<p class="mix-blend-mode-color-dodge">mix-blend-mode: color-dodge</p>
+			<p class="mix-blend-mode-color-burn">mix-blend-mode: color-burn</p>
+			<p class="mix-blend-mode-hard-light">mix-blend-mode: hard-light</p>
+			<p class="mix-blend-mode-soft-light">mix-blend-mode: soft-light</p>
+			<p class="mix-blend-mode-difference">mix-blend-mode: difference</p>
+			<p class="mix-blend-mode-exclusion">mix-blend-mode: exclusion</p>
+			<p class="mix-blend-mode-hue">mix-blend-mode: hue</p>
+			<p class="mix-blend-mode-saturation">mix-blend-mode: saturation</p>
+			<p class="mix-blend-mode-color">mix-blend-mode: color</p>
+			<p class="mix-blend-mode-luminosity">mix-blend-mode: luminosity</p>
+			<p class="no-transform">transform: none</p>
+			<p class="transform">transform: translate(10px, 5px)</p>
+			<p class="scale">scale: 1.1</p>
+			<p class="rotate">rotate: 5deg</p>
+			<p class="skew">skew: 5deg</p>
+			<p class="translate">translate: 10px 5px</p>
+			<p class="filter">filter: blur(1px)</p>
+			<p class="backdrop-filter">backdrop-filter: blur(1px)</p>
+			<p class="perspective">perspective: 1000px</p>
+			<p class="clip-path">clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%)</p>
+			<p class="mask">mask</p>
+			<p class="mask-border">mask-border</p>
+			<p class="isolation">isolation: isolate</p>
+			<div id="stem"></div>
+		</div>
+		<div id="output"></div>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/html-to-canvas.js";
+		const target = document.getElementById("input");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.getElementById("output").appendChild(canvas);
+		});
+	</script>
+
+</body>
+
+</html>

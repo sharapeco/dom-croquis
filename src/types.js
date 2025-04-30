@@ -1,5 +1,5 @@
 /**
- * @typedef {"clip" | "endClip" | "transform" | "endTransform" | "fill" | "text" | "image"} TokenType
+ * @typedef {"stackingContext" | "endStackingContext" | "clip" | "endClip" | "transform" | "endTransform" | "fill" | "text" | "image"} TokenType
  *
  * @typedef {Object} Coordinates
  * @property {number} x
@@ -48,6 +48,12 @@
  * @typedef {Object} BaseToken
  * @property {TokenType} type
  * @property {Node} node
+ *
+ * @typedef {Object} StackingContextProp
+ * @property {number} zIndex
+ * @property {string} reason
+ *
+ * @typedef {BaseToken & StackingContextProp} StackingContextToken
  *
  * @typedef {BaseToken & Coordinates & Shape} ClipToken
  *
@@ -100,7 +106,7 @@
  *
  * @typedef {Coordinates & Rect} ImageClip
  *
- * @typedef {ClipToken | TransformToken | FillToken | TextToken | ImageToken} Token
+ * @typedef {StackingContextToken | ClipToken | TransformToken | FillToken | TextToken | ImageToken | BaseToken} Token
  */
 
 export default {};
