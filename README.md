@@ -20,6 +20,12 @@ const canvas = await htmlToCanvas(document.body);
 document.body.appendChild(canvas);
 ```
 
+You can also use the library via a CDN.
+
+```js
+import { htmlToCanvas } from "https://unpkg.com/dom-croquis@latest/dist/dom-croquis.min.js";
+```
+
 ## Building
 
 Clone the repository:

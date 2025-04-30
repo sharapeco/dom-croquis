@@ -10,13 +10,19 @@
 
 ## 使用方法
 
-このライブラリはESモジュールとして提供されます。プロジェクトに直接インポートして使用できます：
+このライブラリはESモジュールとして提供されます。プロジェクトに直接インポートして使用できます。
 
 ```js
 import { htmlToCanvas } from "dom-croquis.js";
 
 const canvas = await htmlToCanvas(document.body);
 document.body.appendChild(canvas);
+```
+
+CDN経由でも使用できます。
+
+```js
+import { htmlToCanvas } from "https://unpkg.com/dom-croquis@latest/dist/dom-croquis.min.js";
 ```
 
 ## ビルド方法
