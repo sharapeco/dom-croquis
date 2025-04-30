@@ -5,9 +5,9 @@ const minify = process.env.MINIFY || false;
 
 async function config() {
 	return {
-		input: "src/html-to-canvas.js",
+		input: "src/dom-croquis.js",
 		output: {
-			file: `dist/html-to-canvas${minify ? ".min" : ""}.js`,
+			file: `dist/dom-croquis${minify ? ".min" : ""}.js`,
 			format: "es",
 			sourcemap: true,
 		},

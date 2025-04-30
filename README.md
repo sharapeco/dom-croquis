@@ -1,19 +1,20 @@
 English | [日本語](README.ja.md)
 
-# html-to-canvas
+# dom-croquis
 
-This library can render the current DOM to a canvas element on the users browser, similar to [niklasvh/html2canvas](https://github.com/niklasvh/html2canvas), [tsayen/dom-to-image](https://github.com/tsayen/dom-to-image), and [1904labs/dom-to-image-more](https://github.com/1904labs/dom-to-image-more).
+`dom-croquis` is a high-performance library that renders the current DOM to a canvas element in the user’s browser—similar to [html2canvas](https://github.com/niklasvh/html2canvas), [dom-to-image](https://github.com/tsayen/dom-to-image), and [dom-to-image-more](https://github.com/1904labs/dom-to-image-more).
 
-It achieves superior performance by supporting a limited set of CSS features. This focused approach allows for faster rendering times compared to other libraries, making it an ideal choice for scenarios where high performance is prioritized over complete CSS feature support.
+By intentionally supporting a focused subset of CSS features, dom-croquis achieves significantly faster rendering times than comparable libraries.
+This makes it ideal for use cases where speed matters more than full CSS coverage.
 
-For a list of supported CSS features, please refer to the [Wiki](https://github.com/sharapeco/html-to-canvas/wiki/Supported-CSS).
+➡️ See the [Wiki](https://github.com/sharapeco/dom-croquis/wiki/Supported-CSS) for a detailed list of supported CSS properties.
 
 ## Usage
 
 The library is provided as an ES module. You can import it directly into your project:
 
 ```js
-import { htmlToCanvas } from "html-to-canvas.js";
+import { htmlToCanvas } from "dom-croquis.js";
 
 const canvas = await htmlToCanvas(document.body);
 document.body.appendChild(canvas);
@@ -24,7 +25,7 @@ document.body.appendChild(canvas);
 Clone the repository:
 
 ```shell-session
-$ git clone https://github.com/sharapeco/html-to-canvas.git
+$ git clone https://github.com/sharapeco/dom-croquis.git
 ```
 
 Install dependencies:

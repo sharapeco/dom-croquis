@@ -13,7 +13,7 @@ import { splitChar } from "./split-char.js";
  */
 export class DocumentCloner {
 	/** @type {string} 目印の属性名 */
-	static MARK_ATTR = "data-html-to-canvas-target";
+	static MARK_ATTR = "data-dom-croquis-target";
 
 	/**
 	 * @param {HTMLElement} target

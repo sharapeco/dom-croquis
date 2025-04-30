@@ -33,8 +33,8 @@ export async function htmlToCanvas(root, options = {}) {
 		scale,
 	});
 
-	console.log(`[html-to-canvas] canvas [${canvas.width}, ${canvas.height}, scale=${scale}] (${Math.round(bound.width)}, ${Math.round(bound.height)})`);
-	console.log("[html-to-canvas] tokens", tokens);
+	console.log(`[dom-croquis] canvas [${canvas.width}, ${canvas.height}, scale=${scale}] (${Math.round(bound.width)}, ${Math.round(bound.height)})`);
+	console.log("[dom-croquis] tokens", tokens);
 
 	if (!options.debug) {
 		sandbox.destroy();

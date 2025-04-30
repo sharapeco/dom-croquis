@@ -91,7 +91,7 @@
 	</div>
 
 	<script type="module">
-		import { htmlToCanvas } from "../src/html-to-canvas.js";
+		import { htmlToCanvas } from "../src/dom-croquis.js";
 		const target = document.getElementById("input");
 		htmlToCanvas(target, { debug: true }).then(function (canvas) {
 			document.getElementById("output").appendChild(canvas);

@@ -1,5 +1,5 @@
 {
-  "name": "html-to-canvas",
+  "name": "dom-croquis",
   "type": "module",
   "version": "0.1.0",
   "description": "Faster screenshots of web pages with JavaScript",
@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sharapeco/html-to-canvas.git"
+    "url": "git+https://github.com/sharapeco/dom-croquis.git"
   },
   "author": "Shinichiro Yabu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sharapeco/html-to-canvas/issues"
+    "url": "https://github.com/sharapeco/dom-croquis/issues"
   },
-  "homepage": "https://github.com/sharapeco/html-to-canvas#readme",
+  "homepage": "https://github.com/sharapeco/dom-croquis#readme",
   "devDependencies": {
     "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-terser": "^0.4.4",

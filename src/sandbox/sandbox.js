@@ -106,7 +106,7 @@ export class Sandbox {
 		const selector = `[${DocumentCloner.MARK_ATTR}]`;
 		script.textContent = `function replaceHref(href) {
 	const url = new URL(href);
-	url.searchParams.set("__html-to-canvas-sandbox", "${Date.now()}");
+	url.searchParams.set("__dom-croquis-sandbox", "${Date.now()}");
 	return url.toString();
 }
 for (const link of document.querySelectorAll("link[rel='stylesheet']")) {
