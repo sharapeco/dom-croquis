@@ -8,6 +8,7 @@
  */
 
 import { createPath2d } from "./path.js";
+import { supportsCanvasBlur, blur } from "./blur.js";
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;
@@ -90,7 +91,7 @@ export function render(tokens, options = {}) {
 
 /**
  * @param {CanvasRenderingContext2D} ctx
- * @param {FillToken} token
+ * @param {ClipToken} token
  */
 function clip(ctx, token) {
 	if (token.path) {
@@ -118,16 +119,46 @@ function fill(ctx, token) {
 		ctx.filter = token.filter;
 	}
 
+	const blurRadius = getBlurRadius(token.filter);
+	let blurCanvas;
+	let blurCtx;
+	if (!supportsCanvasBlur() && blurRadius > 0) {
+		blurCanvas = document.createElement("canvas");
+		blurCanvas.width = token.rect.width;
+		blurCanvas.height = token.rect.height;
+		blurCtx = blurCanvas.getContext("2d");
+		blurCtx.fillStyle = token.color;
+		blurCtx.translate(-token.rect.x, -token.rect.y);
+	} else {
+		ctx.translate(token.x, token.y);
+	}
+
+	const targetCtx = blurCtx ?? ctx;
+
 	if (token.path) {
 		const path2d = createPath2d(token.path);
-		ctx.translate(token.x, token.y);
-		ctx.fill(path2d, token.path.fillRule ?? "nonzero");
+		targetCtx.translate(0, 0);
+		targetCtx.fill(path2d, token.path.fillRule ?? "nonzero");
 	} else {
-		ctx.rect(token.x, token.y, token.rect.width, token.rect.height);
-		ctx.fill();
+		targetCtx.rect(0, 0, token.rect.width, token.rect.height);
+		targetCtx.fill();
+	}
+
+	if (blurCtx) {
+		blur(blurCanvas, blurRadius);
+		ctx.drawImage(blurCanvas, token.x + token.rect.x, token.y + token.rect.y);
 	}
 
 	ctx.restore();
+}
+
+function getBlurRadius(filter) {
+	const blurRadius = filter?.match(/blur\((\d+)px\)/)?.[1];
+	if (!blurRadius) {
+		return 0;
+	}
+	const radius = Number.parseInt(blurRadius);
+	return Number.isNaN(radius) ? 0 : radius;
 }
 
 /**

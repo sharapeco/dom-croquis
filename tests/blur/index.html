@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Blur Test</title>
+</head>
+
+<body>
+
+	<h1>Blur Test</h1>
+	<p>CanvasRenderingContext2D.filter = "blur(...)": <span id="supports-blur"></span></p>
+
+	<div style="margin:20px;width:60px;height:60px;background:#357;box-shadow:0 0 10px 10px #357;"></div>
+
+	<script type="module">
+		import { supportsCanvasBlur, blur } from "../../src/renderer/blur.js";
+
+		document.getElementById("supports-blur").textContent =
+			supportsCanvasBlur() ? "Supported" : "Not Supported";
+
+		const canvas = document.createElement("canvas");
+		canvas.width = 100;
+		canvas.height = 100;
+		const ctx = canvas.getContext("2d");
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, 100, 100);
+		ctx.fillStyle = "#357";
+		ctx.fillRect(10, 10, 80, 80);
+		document.body.appendChild(canvas);
+
+		const nativeBlurCanvas = document.createElement("canvas");
+		nativeBlurCanvas.width = 100;
+		nativeBlurCanvas.height = 100;
+		const nativeBlurCtx = nativeBlurCanvas.getContext("2d");
+		nativeBlurCtx.filter = "blur(10px)";
+		nativeBlurCtx.drawImage(canvas, 0, 0);
+		document.body.appendChild(nativeBlurCanvas);
+
+		const blurredCanvas = document.createElement("canvas");
+		blurredCanvas.width = 100;
+		blurredCanvas.height = 100;
+		const blurredCtx = blurredCanvas.getContext("2d");
+		blurredCtx.drawImage(canvas, 0, 0);
+		blur(blurredCanvas, 10);
+		document.body.appendChild(blurredCanvas);
+	</script>
+</body>
+
+</html>

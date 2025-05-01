@@ -146,9 +146,8 @@ export class BoxTokenizer {
 						blur + spread + Math.max(x < 0 ? -x : x, y < 0 ? -y : y),
 					);
 				}
-				const outerPath = rectPath(
-					offsetRect(virtualRect, [bleeding, bleeding, bleeding, bleeding]),
-				);
+				const outerRect = offsetRect(virtualRect, [bleeding, bleeding, bleeding, bleeding]);
+				const outerPath = rectPath(outerRect);
 				tokens.push({
 					tag: "box-shadow",
 					type: "clip",
@@ -159,7 +158,7 @@ export class BoxTokenizer {
 				});
 
 				for (const boxShadow of boxShadows) {
-					const { color, x, y, blur, spread } = boxShadow;
+					const { color, blur, spread } = boxShadow;
 					const boxOffset = [spread, spread, spread, spread];
 
 					tokens.push({
@@ -172,10 +171,10 @@ export class BoxTokenizer {
 							offsetRect(virtualRect, boxOffset),
 							offsetRadius(radius, boxOffset),
 						),
+						rect: outerRect,
 						color,
 						filter: `blur(${blur}px)`,
 					});
-					console.log(tokens[tokens.length - 1]);
 				}
 
 				tokens.push({ tag: "box-shadow", type: "endClip" });
@@ -231,9 +230,8 @@ export class BoxTokenizer {
 				for (const boxShadow of insetBoxShadows) {
 					const { color, x, y, blur, spread } = boxShadow;
 					const bleeding = blur + Math.max(x < 0 ? -x : x, y < 0 ? -y : y);
-					const outerPath = rectPath(
-						offsetRect(virtualRect, [bleeding, bleeding, bleeding, bleeding]),
-					);
+					const outerRect = offsetRect(virtualRect, [bleeding, bleeding, bleeding, bleeding]);
+					const outerPath = rectPath(outerRect);
 					const innerOffset = [-spread, -spread, -spread, -spread];
 					const innerPath = roundedRectPath(
 						offsetRect(virtualRect, innerOffset),
@@ -246,6 +244,7 @@ export class BoxTokenizer {
 						[wmX]: offset + boxShadow[wmX],
 						[wmY]: boxShadow[wmY],
 						path: compositePath([outerPath, innerPath], "evenodd"),
+						rect: outerRect,
 						color,
 						filter: `blur(${blur}px)`,
 					});
