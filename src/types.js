@@ -1,5 +1,5 @@
 /**
- * @typedef {"stackingContext" | "endStackingContext" | "clip" | "endClip" | "transform" | "endTransform" | "fill" | "text" | "image"} TokenType
+ * @typedef {"stackingContext" | "endStackingContext" | "clip" | "endClip" | "transform" | "endTransform" | "effect" | "endEffect" | "fill" | "text" | "image"} TokenType
  *
  * @typedef {Object} Coordinates
  * @property {number} x
@@ -60,9 +60,17 @@
  * @typedef {number[6]} TransformMatrix
  *
  * @typedef {Object} TransformProp
- * @property {TransformMatrix} matrix
+ * @property {TransformMatrix} transform
  *
  * @typedef {BaseToken & TransformProp} TransformToken
+ *
+ * @typedef {"normal" | "multiply" | "screen" | "overlay" | "darken" | "lighten" | "color-dodge" | "hard-light" | "soft-light" | "difference" | "exclusion" | "hue" | "saturation" | "color" | "luminosity"} BlendMode
+ *
+ * @typedef {Object} EffectProp
+ * @property {number} [opacity]
+ * @property {BlendMode} [blendMode]
+ *
+ * @typedef {BaseToken & EffectProp} EffectToken
  *
  * @typedef {Object} FillTokenProp
  * @property {string} color

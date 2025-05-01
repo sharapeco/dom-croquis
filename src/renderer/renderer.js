@@ -16,20 +16,51 @@ const underlineOffset = isSafari ? 0.5 : -2.5;
 export function render(tokens, options = {}) {
 	const { width, height, scale } = options;
 
-	const canvas = options.canvas ?? document.createElement("canvas");
-	canvas.width = width * scale;
-	canvas.height = height * scale;
-	canvas.style.width = `${width}px`;
-	canvas.style.height = `${height}px`;
+	const createCanvas = (existingCanvas) => {
+		const canvas = existingCanvas ?? document.createElement("canvas");
+		canvas.width = width * scale;
+		canvas.height = height * scale;
+		canvas.style.width = `${width}px`;
+		canvas.style.height = `${height}px`;
 
-	const ctx = canvas.getContext("2d");
-	if (!ctx) {
-		throw new Error("Failed to get 2d context");
-	}
-	ctx.scale(scale, scale);
+		const ctx = canvas.getContext("2d");
+		if (!ctx) {
+			throw new Error("Failed to get 2d context");
+		}
+		ctx.scale(scale, scale);
+
+		return { canvas, ctx };
+	};
+
+	const rootLayer = createCanvas(options.canvas);
+	const layers = [rootLayer];
+	let { canvas, ctx } = rootLayer;
 
 	for (const token of tokens) {
 		switch (token.type) {
+			case "effect": {
+				ctx.save();
+				if (token.opacity != null) {
+					ctx.globalAlpha = token.opacity;
+				}
+				if (token.blendMode != null) {
+					ctx.globalCompositeOperation = token.blendMode;
+				}
+
+				const newLayer = createCanvas();
+				layers.push(newLayer);
+				canvas = newLayer.canvas;
+				ctx = newLayer.ctx;
+				break;
+			}
+			case "endEffect": {
+				const effectLayer = layers.pop();
+				canvas = layers[layers.length - 1].canvas;
+				ctx = layers[layers.length - 1].ctx;
+				ctx.drawImage(effectLayer.canvas, 0, 0, width, height);
+				ctx.restore();
+				break;
+			}
 			case "clip":
 				ctx.save();
 				clip(ctx, token);

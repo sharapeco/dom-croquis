@@ -2,6 +2,7 @@ import { BoxTokenizer } from "./box.js";
 import { parseFontProperties } from "./text.js";
 import { createsStackingContext } from "./createsStackingContext.js";
 import { sortByZIndex } from "./sortByZIndex.js";
+import { parseEffects } from "./effects.js";
 
 /**
  * @typedef {import("../types.js").Token} Token
@@ -18,6 +19,13 @@ import { sortByZIndex } from "./sortByZIndex.js";
  * @property {boolean} clipOverflow
  * @property {boolean} hidden
  * @property {StackingContextProp | null} stackingContext
+ * @property {Effects | null} effects
+ *
+ * @typedef {import("../types.js").BlendMode} BlendMode
+ *
+ * @typedef {Object} Effects
+ * @property {number} [opacity]
+ * @property {BlendMode} [blendMode]
  */
 
 /** @type {State} */
@@ -25,6 +33,7 @@ const defaultState = {
 	clipOverflow: false,
 	hidden: false,
 	stackingContext: null,
+	effects: null,
 };
 
 const textSpacingTrimList =
@@ -79,6 +88,12 @@ export class Tokenizer {
 				});
 			}
 
+			if (!state.hidden && state.effects != null) {
+				tokens.push({
+					type: "endEffect",
+				});
+			}
+
 			return state;
 		};
 
@@ -97,6 +112,13 @@ export class Tokenizer {
 							? 0
 							: Number.parseInt(css.zIndex),
 					reason: state.stackingContext.reason,
+				});
+			}
+
+			if (!state.hidden && state.effects != null) {
+				tokens.push({
+					type: "effect",
+					...state.effects,
 				});
 			}
 
@@ -169,6 +191,7 @@ export class Tokenizer {
 					overflow === "auto"),
 			hidden: parentState.hidden || display === "none" || opacity === "0",
 			stackingContext: createsStackingContext(node),
+			effects: parseEffects(node),
 		};
 	}
 
