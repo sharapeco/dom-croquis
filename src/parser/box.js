@@ -493,7 +493,6 @@ export class BoxTokenizer {
 			image,
 			...position,
 			height: (position.width / image.width) * image.height,
-			blendMode: mixBlendMode === "normal" ? undefined : mixBlendMode,
 		};
 		return token;
 	}

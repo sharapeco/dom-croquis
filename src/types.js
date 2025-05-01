@@ -108,7 +108,6 @@
  * @property {HTMLImageElement} image
  * @property {ImageClip} [clip]
  * @property {string} [fillColor]
- * @property {string} [blendMode] "soft-light" など
  *
  * @typedef {BaseToken & Coordinates & Rect & ImageTokenProp} ImageToken
  *

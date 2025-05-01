@@ -200,9 +200,6 @@ function prepareText(token) {
  * @param {number} scale
  */
 async function image(ctx, token, scale) {
-	if (token.blendMode != null) {
-		ctx.globalCompositeOperation = token.blendMode;
-	}
 	if (!token.fillColor) {
 		ctx.drawImage(
 			token.image,
@@ -241,7 +238,4 @@ async function image(ctx, token, scale) {
 		);
 		ctx.drawImage(canvas, token.x, token.y, token.width, token.height);
 	}
-
-	// デフォルトに戻す
-	ctx.globalCompositeOperation = "source-over";
 }
