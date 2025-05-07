@@ -134,7 +134,10 @@ export class DocumentCloner {
 			// 空白文字のみのテキストノードはそのまま返す
 			return text.cloneNode();
 		}
+		const css = getComputedStyle(text.parentElement);
+		const wordBreak = css.wordBreak === "normal" ? "break-word" : css.wordBreak;
 		const clone = this.doc.createElement("x-text");
+		clone.style.wordBreak = wordBreak;
 		for (const char of splitChar(text.textContent)) {
 			const charClone = this.doc.createElement("x-char");
 			// textContent が一番速い
