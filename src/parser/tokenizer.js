@@ -176,7 +176,8 @@ export class Tokenizer {
 			return { ...parentState, clipOverflow: false, stackingContext: null };
 		}
 
-		const { display, opacity, overflow } = this.getComputedStyle(node);
+		const { display, opacity, overflow, visibility } =
+			this.getComputedStyle(node);
 		return {
 			clipOverflow:
 				display !== "inline" &&
@@ -189,7 +190,11 @@ export class Tokenizer {
 					overflow === "clip" ||
 					overflow === "scroll" ||
 					overflow === "auto"),
-			hidden: parentState.hidden || display === "none" || opacity === "0",
+			hidden:
+				parentState.hidden ||
+				display === "none" ||
+				opacity === "0" ||
+				visibility === "hidden",
 			stackingContext: createsStackingContext(node),
 			effects: parseEffects(node),
 		};
