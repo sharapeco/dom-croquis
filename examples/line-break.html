@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>line-break</title>
+	<link rel="stylesheet" href="examples.css">
+	<style>
+		#input {
+			padding: 1em;
+			flex: 0 0 14.6em;
+			font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+		}
+		#input p {
+			border: 1px solid #ccc;
+		}
+
+		.auto {
+			line-break: auto;
+		}
+
+		.anywhere {
+			line-break: anywhere;
+		}
+
+		.normal {
+			line-break: normal;
+		}
+
+		.loose {
+			line-break: loose;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>line-break</h1>
+
+	<div class="layout-horizontal">
+		<div id="input">
+			<p class="auto">この喫茶店は、いつでもコーヒーの香りを漂わせています。<br>
+				彼女はこの喫茶店で働いて、着々と実力をつけていきました。<br>
+				今では知る人ぞ知る、名人です。
+			</p>
+			<p class="anywhere">この喫茶店は、いつでもコーヒーの香りを漂わせています。<br>
+				彼女はこの喫茶店で働いて、着々と実力をつけていきました。<br>
+				今では知る人ぞ知る、名人です。
+			</p>
+			<p class="normal">この喫茶店は、いつでもコーヒーの香りを漂わせています。<br>
+				彼女はこの喫茶店で働いて、着々と実力をつけていきました。<br>
+				今では知る人ぞ知る、名人です。
+			</p>
+			<p class="loose">この喫茶店は、いつでもコーヒーの香りを漂わせています。<br>
+				彼女はこの喫茶店で働いて、着々と実力をつけていきました。<br>
+				今では知る人ぞ知る、名人です。
+			</p>
+		</div>
+		<div id="output"></div>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/dom-croquis.js";
+		import { Tokenizer } from "../src/parser/tokenizer.js";
+		import { BoxTokenizer } from "../src/parser/box.js";
+
+		const target = document.getElementById("input");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.getElementById("output").appendChild(canvas);
+		});
+
+		const tokenizer = new Tokenizer(target);
+		for (const item of target.querySelectorAll(".item")) {
+			// border-box からの座標で指定するためにラップする
+			const wrap = document.createElement("div");
+			wrap.classList.add("wrap");
+			item.replaceWith(wrap);
+			wrap.appendChild(item);
+
+			const boxTokenizer = new BoxTokenizer({
+				element: item,
+				rootRect: item.getBoundingClientRect(),
+				getComputedStyle: getComputedStyle,
+			});
+
+			const css = getComputedStyle(item);
+			const rect = item.getBoundingClientRect();
+			const r = boxTokenizer.parseBorderRadius(css, rect);
+			createBr(wrap, { top: 0, left: 0, width: r[0], height: r[7] });
+			createBr(wrap, { top: 0, right: 0, width: r[1], height: r[2] });
+			createBr(wrap, { bottom: 0, right: 0, width: r[4], height: r[3] });
+			createBr(wrap, { bottom: 0, left: 0, width: r[5], height: r[6] });
+		}
+
+		function createBr(container, styles) {
+			const br = document.createElement("div");
+			br.classList.add("br");
+			for (const [key, value] of Object.entries(styles)) {
+				br.style[key] = `${value}px`;
+			}
+			container.appendChild(br);
+			return br;
+		}
+	</script>
+</body>
+
+</html>
