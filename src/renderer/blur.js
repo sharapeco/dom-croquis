@@ -117,6 +117,7 @@ export function blur(canvas, radius) {
 	const ctx = canvas.getContext("2d");
 	const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	const blurredImageData = processImageDataRGBA(imageData, intRadius);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.putImageData(blurredImageData, 0, 0);
 }
 
@@ -221,16 +222,10 @@ function processImageDataRGBA(imageData, radius) {
 		stackIn = stackStart;
 		stackOut = stackEnd;
 		for (let x = 0; x < width; x++) {
-			const paInitial = (aSum * mulSum) >>> shgSum;
-			pixels[yi + 3] = paInitial;
-			if (paInitial !== 0) {
-				const a = 255 / paInitial;
-				pixels[yi] = ((rSum * mulSum) >>> shgSum) * a;
-				pixels[yi + 1] = ((gSum * mulSum) >>> shgSum) * a;
-				pixels[yi + 2] = ((bSum * mulSum) >>> shgSum) * a;
-			} else {
-				pixels[yi] = pixels[yi + 1] = pixels[yi + 2] = 0;
-			}
+			pixels[yi] = (rSum * mulSum) >>> shgSum;
+			pixels[yi + 1] = (gSum * mulSum) >>> shgSum;
+			pixels[yi + 2] = (bSum * mulSum) >>> shgSum;
+			pixels[yi + 3] = (aSum * mulSum) >>> shgSum;
 
 			rSum -= rOutSum;
 			gSum -= gOutSum;

@@ -75,7 +75,7 @@ export function render(tokens, options = {}) {
 				ctx.restore();
 				break;
 			case "fill":
-				fill(ctx, token);
+				fill(ctx, token, scale);
 				break;
 			case "text":
 				text(ctx, token, scale);
@@ -110,8 +110,9 @@ function clip(ctx, token) {
 /**
  * @param {CanvasRenderingContext2D} ctx
  * @param {FillToken} token
+ * @param {number} scale
  */
-function fill(ctx, token) {
+function fill(ctx, token, scale) {
 	ctx.save();
 
 	ctx.fillStyle = token.color;
@@ -124,10 +125,11 @@ function fill(ctx, token) {
 	let blurCtx;
 	if (!supportsCanvasBlur() && blurRadius > 0) {
 		blurCanvas = document.createElement("canvas");
-		blurCanvas.width = token.rect.width;
-		blurCanvas.height = token.rect.height;
+		blurCanvas.width = token.rect.width * scale;
+		blurCanvas.height = token.rect.height * scale;
 		blurCtx = blurCanvas.getContext("2d");
 		blurCtx.fillStyle = token.color;
+		blurCtx.scale(scale, scale);
 		blurCtx.translate(-token.rect.x, -token.rect.y);
 	} else {
 		ctx.translate(token.x, token.y);
@@ -145,8 +147,14 @@ function fill(ctx, token) {
 	}
 
 	if (blurCtx) {
-		blur(blurCanvas, blurRadius);
-		ctx.drawImage(blurCanvas, token.x + token.rect.x, token.y + token.rect.y);
+		blur(blurCanvas, blurRadius * scale);
+		ctx.drawImage(
+			blurCanvas,
+			token.x + token.rect.x,
+			token.y + token.rect.y,
+			token.rect.width,
+			token.rect.height,
+		);
 	}
 
 	ctx.restore();
