@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Inline Elements</title>
+	<link rel="stylesheet" href="assets/examples.css">
+	<style>
+		#input {
+			flex: 0 0 20em;
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-size: 125%;
+			line-height: 2;
+			padding: 1px 0;
+			border-left: 1px solid #aaa;
+			border-right: 1px solid #aaa;
+		}
+
+		p {
+			margin: 1.75em 0;
+		}
+
+		p::before {
+			content: attr(data-class);
+			display: block;
+			font-size: 0.875rem;
+			font-weight: bold;
+			color: #777;
+		}
+
+		.vertical {
+			height: 20em;
+			writing-mode: vertical-rl;
+			border: solid 1px #aaa;
+			border-style: solid none;
+		}
+
+		.background-color {
+			background-color: #fde724;
+		}
+
+		.background-gradient {
+			background: linear-gradient(90deg, #3c4d8a, #4080a0, #4fc368, #fde724);
+		}
+
+		.border-block-end {
+			border-block-end: 2px solid #4080a0;
+		}
+
+		.border {
+			border: 4px solid #4080a0;
+		}
+
+		.outline {
+			outline: 4px solid #4fc36880;
+		}
+
+		.outline-offset {
+			outline: 4px solid #4fc36880;
+			outline-offset: 14px;
+		}
+
+		.box-shadow {
+			box-shadow: 0 0 5px 0 #4080a0;
+		}
+
+		.radius {
+			background-color: #fde724;
+			border-radius: 50%;
+		}
+
+		.text-shadow {
+			text-shadow: 0 10px 0 #4080a0, 2px 12px 2px #5eb7e7;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Inline Elements</h1>
+
+	<div class="layout-horizontal">
+		<div id="input">
+
+			<p>日本語の組版は実に難しく、<span>ひらがな、カタカナ、漢字</span>だけでなく、<span>アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="background-color">日本語の組版は実に難しく、<span class="background-color">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="background-color">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="background-gradient">日本語の組版は実に難しく、<span
+					class="background-gradient">ひらがな、カタカナ、漢字</span>だけでなく、<span class="background-gradient">アラビア数字
+					(012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="border-block-end">日本語の組版は実に難しく、<span class="border-block-end">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="border-block-end">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="border">日本語の組版は実に難しく、<span class="border">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="border">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="outline">日本語の組版は実に難しく、<span class="outline">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="outline">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="outline-offset">日本語の組版は実に難しく、<span class="outline-offset">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="outline-offset">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="box-shadow">日本語の組版は実に難しく、<span class="box-shadow">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="box-shadow">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="box-shadow border-block-end">日本語の組版は実に難しく、<span
+					class="box-shadow border-block-end">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="box-shadow border-block-end">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="radius">日本語の組版は実に難しく、<span class="radius">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="radius">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p data-class="background-color text-shadow">日本語の組版は実に難しく、<span
+					class="background-color text-shadow">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="background-color text-shadow">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+
+			<!--
+			<p class="vertical" data-class="background-color">日本語の組版は実に難しく、<span
+					class="background-color">ひらがな、カタカナ、漢字</span>だけでなく、<span class="background-color">アラビア数字 (012)、ラテン文字
+					(ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="background-gradient">日本語の組版は実に難しく、<span
+					class="background-gradient">ひらがな、カタカナ、漢字</span>だけでなく、<span class="background-gradient">アラビア数字
+					(012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="border-block-end">日本語の組版は実に難しく、<span
+					class="border-block-end">ひらがな、カタカナ、漢字</span>だけでなく、<span class="border-block-end">アラビア数字 (012)、ラテン文字
+					(ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="border">日本語の組版は実に難しく、<span class="border">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="border">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="outline">日本語の組版は実に難しく、<span class="outline">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="outline">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="outline-offset">日本語の組版は実に難しく、<span
+					class="outline-offset">ひらがな、カタカナ、漢字</span>だけでなく、<span class="outline-offset">アラビア数字 (012)、ラテン文字
+					(ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="box-shadow">日本語の組版は実に難しく、<span
+					class="box-shadow">ひらがな、カタカナ、漢字</span>だけでなく、<span class="box-shadow">アラビア数字 (012)、ラテン文字
+					(ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="box-shadow border-block-end">日本語の組版は実に難しく、<span
+					class="box-shadow border-block-end">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="box-shadow border-block-end">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="radius">日本語の組版は実に難しく、<span class="radius">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="radius">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			<p class="vertical" data-class="background-color text-shadow">日本語の組版は実に難しく、<span
+					class="background-color text-shadow">ひらがな、カタカナ、漢字</span>だけでなく、<span
+					class="background-color text-shadow">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
+				</span>を使うこともある。</p>
+			-->
+		</div>
+		<div id="output"></div>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/dom-croquis.js";
+		import { Tokenizer } from "../src/parser/tokenizer.js";
+		import { BoxTokenizer } from "../src/parser/box.js";
+
+		const target = document.getElementById("input");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.getElementById("output").appendChild(canvas);
+		});
+	</script>
+</body>
+
+</html>
