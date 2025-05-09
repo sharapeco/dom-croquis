@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>float</title>
+	<link rel="stylesheet" href="assets/examples.css">
+	<style>
+		#input {
+			flex: 0 0 26em;
+			padding: 1em;
+			border: 1px solid #ccc;
+			background-color: #f0f0f0;
+			font-family: Georgia, 'Times New Roman', Times, serif;
+		}
+
+		P {
+			margin: 10px 5px;
+		}
+
+		.float-left {
+			float: left;
+		}
+
+		.float-right {
+			float: right;
+		}
+
+		.underline {
+			text-decoration: underline overline;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>float</h1>
+
+	<div class="layout-horizontal">
+		<div id="input">
+			<img class="float-left" src="assets/star.png" alt="⭐">
+			<p>Nuit d’étoiles，
+				sous tes voiles，
+				sous ta brise et tes parfums，
+				Triste lyre qui soupire，
+				je rêve aux amours défunts.</p>
+			<img class="float-right" src="assets/star.png" alt="⭐">
+			<p>La sereine mélancolie vient éclore
+				au fond de mon coeur，
+				Et j’entends l’âme de ma mie
+				Tressaillir dans le bois rêveur.</p>
+			<div class="underline">
+				<p class="float-left">underline?</p>
+				<p>underline</p>
+			</div>
+		</div>
+		<div id="output"></div>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/dom-croquis.js";
+		import { Tokenizer } from "../src/parser/tokenizer.js";
+		import { BoxTokenizer } from "../src/parser/box.js";
+
+		const target = document.getElementById("input");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.getElementById("output").appendChild(canvas);
+		});
+	</script>
+</body>
+
+</html>
