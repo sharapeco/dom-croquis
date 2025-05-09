@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="assets/examples.css">
 	<style>
 		#input {
+			position: relative;
 			flex: 0 0 26em;
 			padding: 1em;
 			border: 1px solid #ccc;
@@ -15,20 +16,18 @@
 			font-family: Georgia, 'Times New Roman', Times, serif;
 		}
 
-		P {
+		p {
 			margin: 10px 5px;
 		}
 
 		.float-left {
 			float: left;
+			margin-right: 10px;
 		}
 
 		.float-right {
 			float: right;
-		}
-
-		.underline {
-			text-decoration: underline overline;
+			margin-left: 10px;
 		}
 	</style>
 </head>
@@ -39,20 +38,16 @@
 	<div class="layout-horizontal">
 		<div id="input">
 			<img class="float-left" src="assets/star.png" alt="⭐">
-			<p>Nuit d’étoiles，
-				sous tes voiles，
-				sous ta brise et tes parfums，
-				Triste lyre qui soupire，
+			<p>Nuit d’étoiles,
+				sous tes voiles,
+				sous ta brise et tes parfums,
+				Triste lyre qui soupire,
 				je rêve aux amours défunts.</p>
 			<img class="float-right" src="assets/star.png" alt="⭐">
 			<p>La sereine mélancolie vient éclore
-				au fond de mon coeur，
+				au fond de mon coeur,
 				Et j’entends l’âme de ma mie
 				Tressaillir dans le bois rêveur.</p>
-			<div class="underline">
-				<p class="float-left">underline?</p>
-				<p>underline</p>
-			</div>
 		</div>
 		<div id="output"></div>
 	</div>
