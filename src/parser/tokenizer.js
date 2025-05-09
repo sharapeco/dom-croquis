@@ -99,6 +99,10 @@ export class Tokenizer {
 
 		/** @type {Node} */
 		let node = this.root;
+
+		/** @type {Token | null} */
+		let prevTextToken = null;
+
 		walk: while (node != null && node !== this.root.nextSibling) {
 			const state = this.readState(node, states[states.length - 1]);
 			pushState(state);
@@ -132,15 +136,17 @@ export class Tokenizer {
 						const elementTokens = await this.readElementTokens(node, state);
 						for (const token of elementTokens) {
 							tokens.push(token);
+							prevTextToken = null;
 						}
 					}
 					break;
 				case Node.TEXT_NODE:
 					if (!state.hidden) {
-						const token = this.readTextToken(node, tokens[tokens.length - 1]);
-						if (token != null) {
+						const token = this.readTextToken(node, prevTextToken);
+						if (token != null && token !== prevTextToken) {
 							tokens.push(token);
 						}
+						prevTextToken = token;
 					}
 					break;
 			}
@@ -223,9 +229,7 @@ export class Tokenizer {
 	readTextToken(node, prevToken) {
 		const text = node.textContent;
 		if (!/[^\s]/u.test(text)) {
-			if (prevToken != null && prevToken.type === "text") {
-				prevToken.text += text;
-			}
+			// Ignore whitespace
 			return null;
 		}
 
@@ -258,7 +262,7 @@ export class Tokenizer {
 		) {
 			prevToken.text += text;
 			prevToken.width = position.x + position.width - prevToken.x;
-			return null;
+			return prevToken;
 		}
 
 		return {
