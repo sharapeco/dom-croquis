@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>text-align, letter-spacing, word-spacing</title>
+	<link rel="stylesheet" href="assets/examples.css">
+	<style>
+		#input {
+			flex: 0 0 20em;
+			padding: 1.5em;
+			border: 1px solid #ccc;
+			background-color: #f0f0f0;
+			font-family: "Times New Roman", serif;
+		}
+
+		h2 {
+			font-size: 12px;
+			font-family: Consolas, Monaco, monospace;
+			font-weight: normal;
+			color: #777;
+		}
+
+		h2 ~ h2 {
+			margin-top: 3em;
+		}
+
+		.left {
+			text-align: left;
+		}
+
+		.center {
+			text-align: center;
+		}
+
+		.right {
+			text-align: right;
+		}
+
+		.justify {
+			text-align: justify;
+		}
+
+		.ls-normal {
+			letter-spacing: normal;
+		}
+
+		.ls-em {
+			letter-spacing: 0.5em;
+		}
+
+		.ls-px {
+			letter-spacing: 3px;
+		}
+
+		.ls-negative {
+			letter-spacing: -0.5mm;
+		}
+
+		.ws-normal {
+			word-spacing: normal;
+		}
+
+		.ws-em {
+			word-spacing: 1em;
+		}
+
+		.ws-px {
+			word-spacing: 10px;
+		}
+
+		.ws-negative {
+			word-spacing: -3mm;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>text-align, letter-spacing, word-spacing</h1>
+
+	<div class="layout-horizontal">
+		<div id="input">
+			<h2>text-align: left</h2>
+			<p class="left">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>text-align: center</h2>
+			<p class="center">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>text-align: right</h2>
+			<p class="right">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>text-align: justify</h2>
+			<p class="justify">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+
+			<h2>letter-spacing: normal</h2>
+			<p class="ls-normal">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>letter-spacing: 0.5em</h2>
+			<p class="ls-em">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>letter-spacing: 3px</h2>
+			<p class="ls-px">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>letter-spacing: -0.5mm</h2>
+			<p class="ls-negative">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+
+			<h2>word-spacing: normal</h2>
+			<p class="ws-normal">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>word-spacing: 1em</h2>
+			<p class="ws-em">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>word-spacing: 10px</h2>
+			<p class="ws-px">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+			<h2>word-spacing: -3mm</h2>
+			<p class="ws-negative">
+				Lorem ipsum dolor sit amet,
+				consectetur adipiscing elit.
+				Sed do eiusmod tempor incididunt
+			</p>
+		</div>
+		<div id="output"></div>
+	</div>
+
+	<script type="module">
+		import { htmlToCanvas } from "../src/dom-croquis.js";
+		const target = document.getElementById("input");
+		htmlToCanvas(target, { debug: true }).then(function (canvas) {
+			document.getElementById("output").appendChild(canvas);
+		});
+	</script>
+</body>
+
+</html>
