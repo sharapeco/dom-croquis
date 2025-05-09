@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="examples.css">
 	<style>
 		#input {
-			flex: 0 0 19em;
+			flex: 0 0 26em;
 			display: flex;
 			flex-wrap: wrap;
 			align-items: flex-start;
@@ -31,6 +31,13 @@
 
 		.border-8 {
 			border: solid 0.5em var(--c1-500);
+		}
+
+		.border-mc {
+			border-top: solid 4px var(--c1-500);
+			border-right: solid 8px var(--c2-500);
+			border-bottom: solid 12px var(--c3-500);
+			border-left: solid 4px var(--c4-500);
 		}
 
 		.even {
@@ -89,6 +96,10 @@
 		.br:nth-of-type(4) {
 			border-color: #fc0;
 		}
+
+		.sep {
+			width: 100%;
+		}
 	</style>
 </head>
 
@@ -100,27 +111,37 @@
 			<p class="item"></p>
 			<p class="item border-1"></p>
 			<p class="item border-8"></p>
+			<p class="item border-mc"></p>
 			<p class="item shadow"></p>
 			<p class="item shadow-multiple"></p>
 			<p class="item shadow-inset"></p>
 
+			<div class="sep"></div>
+
 			<p class="item even"></p>
 			<p class="item even border-1"></p>
 			<p class="item even border-8"></p>
+			<p class="item even border-mc"></p>
 			<p class="item even shadow"></p>
 			<p class="item even shadow-multiple"></p>
 			<p class="item even shadow-inset"></p>
 
+			<div class="sep"></div>
+
 			<p class="item even-of"></p>
 			<p class="item even-of border-1"></p>
 			<p class="item even-of border-8"></p>
+			<p class="item even-of border-mc"></p>
 			<p class="item even-of shadow"></p>
 			<p class="item even-of shadow-multiple"></p>
 			<p class="item even-of shadow-inset"></p>
 
+			<div class="sep"></div>
+
 			<p class="item odd"></p>
 			<p class="item odd border-1"></p>
 			<p class="item odd border-8"></p>
+			<p class="item odd border-mc"></p>
 			<p class="item odd shadow"></p>
 			<p class="item odd shadow-multiple"></p>
 			<p class="item odd shadow-inset"></p>
