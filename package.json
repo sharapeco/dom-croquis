@@ -22,7 +22,7 @@
   "bugs": {
     "url": "https://github.com/sharapeco/dom-croquis/issues"
   },
-  "homepage": "https://github.com/sharapeco/dom-croquis#readme",
+  "homepage": "https://dom-croquis.suzume.dev",
   "devDependencies": {
     "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-terser": "^0.4.4",
