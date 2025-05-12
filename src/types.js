@@ -60,7 +60,7 @@
  * @typedef {number[6]} TransformMatrix
  *
  * @typedef {Object} TransformProp
- * @property {TransformMatrix} transform
+ * @property {TransformMatrix} matrix
  *
  * @typedef {BaseToken & TransformProp} TransformToken
  *
@@ -90,6 +90,7 @@
  * @property {string} textAlign
  * @property {TextDecoration=} textDecoration
  * @property {string} whiteSpace
+ * @property {string} writingMode
  * @property {number} scaleX 長体・平体の比率。1 が標準、< 1 が長体、> 1 が平体
  *
  * @typedef {Object} TextTokenProp
