@@ -48,42 +48,63 @@ export function detectVerticalRenderingType() {
 	return "vertical";
 }
 
-/**
- * Draws vertical text on a canvas.
- *
- * @param {HTMLCanvasElement} canvas
- * @param {string} text
- * @param {number} x Begin point of x coordinate (middle of the line)
- * @param {number} y Begin point of y coordinate
- * @param {number} scale
- * @param {DrawVerticalTextStyles} [styles]
- */
-export function drawVerticalText(canvas, text, x, y, scale = 1, styles = {}) {
-	const type = detectVerticalRenderingType();
-
-	const vCanvas = createHiddenCanvas(canvas.width, canvas.height);
-
-	// "vertical-rl" is only reflected when the canvas is attached to the DOM.
-	document.body.appendChild(vCanvas);
-
-	const vCtx = vCanvas.getContext("2d");
-	for (const key in styles) {
-		vCtx[key] = styles[key];
-	}
-	vCtx.textBaseline = "middle";
-	vCtx.scale(scale, scale);
-
-	if (type === "vertical") {
-		vCtx.fillText(text, x, y);
-	} else {
-		vCtx.transform(0, 1, -1, 0, x + y, y - x);
-		vCtx.fillText(text, x, y);
+export class VerticalTextRenderer {
+	/**
+	 * @param {number} width Width of the rendering area
+	 * @param {number} height Height of the rendering area
+	 * @param {number} scale Scale of the rendering area
+	 */
+	constructor(width, height, scale) {
+		this.width = width;
+		this.height = height;
+		this.scale = scale;
+		this.initialized = false;
 	}
 
-	const ctx = canvas.getContext("2d");
-	ctx.drawImage(vCanvas, 0, 0, canvas.width, canvas.height);
+	init() {
+		this.type = detectVerticalRenderingType();
+		this.vCanvas = createHiddenCanvas(this.width, this.height);
+		this.vCtx = this.vCanvas.getContext("2d");
+		this.vCtx.scale(this.scale, this.scale);
 
-	vCanvas.remove();
+		// "vertical-rl" is only reflected when the canvas is attached to the DOM.
+		document.body.appendChild(this.vCanvas);
+
+		this.initialized = true;
+	}
+
+	destroy() {
+		this.vCanvas.remove();
+	}
+
+	/**
+	 * Draws vertical text on a canvas.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {string} text
+	 * @param {number} x Begin point of x coordinate (middle of the line)
+	 * @param {number} y Begin point of y coordinate
+	 * @param {DrawVerticalTextStyles} [styles]
+	 */
+	render(ctx, text, x, y, styles) {
+		this.vCtx.clearRect(0, 0, this.width, this.height);
+
+		for (const key in styles) {
+			this.vCtx[key] = styles[key];
+		}
+		this.vCtx.textBaseline = "middle";
+
+		if (this.type === "vertical") {
+			this.vCtx.fillText(text, x, y);
+		} else {
+			this.vCtx.save();
+			this.vCtx.transform(0, 1, -1, 0, x + y, y - x);
+			this.vCtx.fillText(text, x, y);
+			this.vCtx.restore();
+		}
+
+		ctx.drawImage(this.vCanvas, 0, 0, this.width, this.height);
+	}
 }
 
 function createHiddenCanvas(width, height) {

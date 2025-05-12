@@ -9,7 +9,7 @@
 
 import { createPath2d } from "./path.js";
 import { supportsCanvasBlur, blur } from "./blur.js";
-import { drawVerticalText } from "./vertical-text.js";
+import { VerticalTextRenderer } from "./vertical-text.js";
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;
@@ -37,6 +37,8 @@ export function render(tokens, options = {}) {
 	const rootLayer = createCanvas(options.canvas);
 	const layers = [rootLayer];
 	let { canvas, ctx } = rootLayer;
+
+	const vtr = new VerticalTextRenderer(canvas.width, canvas.height, scale);
 
 	for (const token of tokens) {
 		switch (token.type) {
@@ -79,12 +81,16 @@ export function render(tokens, options = {}) {
 				fill(ctx, token, scale);
 				break;
 			case "text":
-				text(ctx, token, scale, canvas);
+				text(ctx, token, scale, vtr);
 				break;
 			case "image":
 				image(ctx, token, scale);
 				break;
 		}
+	}
+
+	if (vtr.initialized) {
+		vtr.destroy();
 	}
 
 	return canvas;
@@ -174,14 +180,17 @@ function getBlurRadius(filter) {
  * @param {CanvasRenderingContext2D} ctx
  * @param {TextToken} token
  * @param {number} scale
- * @param {HTMLCanvasElement} canvas
+ * @param {VerticalTextRenderer} vtr
  */
-function text(ctx, token, scale, canvas) {
+function text(ctx, token, scale, vtr) {
 	if (
 		token.writingMode === "vertical-rl" ||
 		token.writingMode === "vertical-lr"
 	) {
-		verticalText(ctx, token, scale, canvas);
+		if (!vtr.initialized) {
+			vtr.init();
+		}
+		verticalText(ctx, token, scale, vtr);
 	} else {
 		horizontalText(ctx, token, scale);
 	}
@@ -241,9 +250,9 @@ function horizontalText(ctx, token, scale) {
  * @param {CanvasRenderingContext2D} ctx
  * @param {TextToken} token
  * @param {number} scale
- * @param {HTMLCanvasElement} canvas
+ * @param {VerticalTextRenderer} vtr
  */
-function verticalText(ctx, token, scale, canvas) {
+function verticalText(ctx, token, scale, vtr) {
 	const text = prepareText(token);
 
 	const x = token.x + token.width / 2;
@@ -264,7 +273,7 @@ function verticalText(ctx, token, scale, canvas) {
 	ctx.setTransform(scaleX, 0, 0, scaleY, x * (1 - scaleX), y * (1 - scaleY));
 	ctx.fillStyle = "#fc0";
 	ctx.fillRect(x - 1, y - 1, 2, 2);
-	drawVerticalText(canvas, text, x, y, scale, {
+	vtr.render(ctx, text, x, y, {
 		fillStyle: token.color,
 		font: token.font,
 		fontKerning: token.fontKerning,
