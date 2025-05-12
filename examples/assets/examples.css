@@ -19,3 +19,7 @@
 .layout-horizontal > * {
 	flex: 1;
 }
+
+#input {
+	position: relative;
+}
