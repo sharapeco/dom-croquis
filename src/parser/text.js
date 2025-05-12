@@ -25,6 +25,7 @@ export function parseFontProperties(css) {
 		textDecorationThickness,
 		transform,
 		whiteSpace,
+		writingMode,
 	} = css;
 
 	/**
@@ -63,5 +64,6 @@ export function parseFontProperties(css) {
 					},
 		whiteSpace,
 		scaleX: scaleX != null ? Number.parseFloat(scaleX) : 1,
+		writingMode,
 	};
 }

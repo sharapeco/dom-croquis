@@ -236,6 +236,8 @@ export class Tokenizer {
 		// (parent) > x-text > x-char > #text
 		const graphemeElement = node.parentNode;
 		const parentElement = graphemeElement?.parentNode?.parentNode;
+		const isVertical =
+			getComputedStyle(graphemeElement).writingMode.includes("vertical");
 		const rect = graphemeElement.getClientRects()[0];
 		const position = {
 			x: rect.left - this.rootRect.left,
@@ -258,7 +260,7 @@ export class Tokenizer {
 			prevToken?.type === "text" &&
 			prevToken.node === parentElement &&
 			!textSpacingTrimList.includes(text[0]) &&
-			this.isSameLine(position, prevToken)
+			this.isSameLine(position, prevToken, isVertical)
 		) {
 			prevToken.text += text;
 			prevToken.width = position.x + position.width - prevToken.x;
@@ -278,8 +280,13 @@ export class Tokenizer {
 	 *
 	 * @param {Rect} a
 	 * @param {Rect} b
+	 * @param {boolean} isVertical
 	 */
-	isSameLine(a, b) {
+	isSameLine(a, b, isVertical) {
+		if (isVertical) {
+			const delta = a.width * 0.5;
+			return a.x + delta < b.x + b.width && b.x + delta < a.x + a.width;
+		}
 		const delta = a.height * 0.5;
 		return a.y + delta < b.y + b.height && b.y + delta < a.y + a.height;
 	}

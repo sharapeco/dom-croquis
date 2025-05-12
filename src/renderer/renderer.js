@@ -9,6 +9,7 @@
 
 import { createPath2d } from "./path.js";
 import { supportsCanvasBlur, blur } from "./blur.js";
+import { drawVerticalText } from "./vertical-text.js";
 
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const textOffsetY = isSafari ? -1 : 1;
@@ -78,7 +79,7 @@ export function render(tokens, options = {}) {
 				fill(ctx, token, scale);
 				break;
 			case "text":
-				text(ctx, token, scale);
+				text(ctx, token, scale, canvas);
 				break;
 			case "image":
 				image(ctx, token, scale);
@@ -173,8 +174,25 @@ function getBlurRadius(filter) {
  * @param {CanvasRenderingContext2D} ctx
  * @param {TextToken} token
  * @param {number} scale
+ * @param {HTMLCanvasElement} canvas
  */
-function text(ctx, token, scale) {
+function text(ctx, token, scale, canvas) {
+	if (
+		token.writingMode === "vertical-rl" ||
+		token.writingMode === "vertical-lr"
+	) {
+		verticalText(ctx, token, scale, canvas);
+	} else {
+		horizontalText(ctx, token, scale);
+	}
+}
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {TextToken} token
+ * @param {number} scale
+ */
+function horizontalText(ctx, token, scale) {
 	const text = prepareText(token);
 
 	ctx.save();
@@ -215,8 +233,46 @@ function text(ctx, token, scale) {
 			ctx.lineTo(token.x + token.width, y);
 			ctx.stroke();
 		}
-		// NOTE: overline, line-through は使用していないので実装しない
 	}
+	ctx.restore();
+}
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {TextToken} token
+ * @param {number} scale
+ * @param {HTMLCanvasElement} canvas
+ */
+function verticalText(ctx, token, scale, canvas) {
+	const text = prepareText(token);
+
+	const x = token.x + token.width / 2;
+	const y = (() => {
+		switch (token.textAlign) {
+			case "center":
+				return token.y + token.height / 2;
+			case "right":
+				return token.y + token.height;
+			default:
+				return token.y;
+		}
+	})();
+	const scaleX = token.scaleX ?? 1;
+	const scaleY = 1;
+
+	ctx.save();
+	ctx.setTransform(scaleX, 0, 0, scaleY, x * (1 - scaleX), y * (1 - scaleY));
+	ctx.fillStyle = "#fc0";
+	ctx.fillRect(x - 1, y - 1, 2, 2);
+	drawVerticalText(canvas, text, x, y, scale, {
+		fillStyle: token.color,
+		font: token.font,
+		fontKerning: token.fontKerning,
+		fontStretch: token.fontStretch,
+		fontVariantCaps: token.fontVariantCaps,
+		letterSpacing: token.letterSpacing,
+		textAlign: token.textAlign,
+	});
 	ctx.restore();
 }
 
