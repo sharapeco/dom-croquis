@@ -21,12 +21,16 @@
 			margin: 1.75em 0;
 		}
 
-		p::before {
-			content: attr(data-class);
+		h2 {
 			display: block;
+			margin: 0;
 			font-size: 0.875rem;
 			font-weight: bold;
 			color: #777;
+		}
+
+		h2+p {
+			margin-top: 0;
 		}
 
 		.vertical {
@@ -81,40 +85,59 @@
 
 	<div class="layout-horizontal">
 		<div id="input">
-			<p class="vertical" data-class="background-color">日本語の組版は実に難しく、<span
+			<h2>background-color</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="background-color">ひらがな、カタカナ、漢字</span>だけでなく、<span class="background-color">アラビア数字 (012)、ラテン文字
 					(ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="background-gradient">日本語の組版は実に難しく、<span
+
+			<h2>background-gradient</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="background-gradient">ひらがな、カタカナ、漢字</span>だけでなく、<span class="background-gradient">アラビア数字
 					(012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="border-block-end">日本語の組版は実に難しく、<span
+
+			<h2>border-block-end</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="border-block-end">ひらがな、カタカナ、漢字</span>だけでなく、<span class="border-block-end">アラビア数字 (012)、ラテン文字
 					(ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="border">日本語の組版は実に難しく、<span class="border">ひらがな、カタカナ、漢字</span>だけでなく、<span
+
+			<h2>border</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span class="border">ひらがな、カタカナ、漢字</span>だけでなく、<span
 					class="border">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="outline">日本語の組版は実に難しく、<span class="outline">ひらがな、カタカナ、漢字</span>だけでなく、<span
+
+			<h2>outline</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span class="outline">ひらがな、カタカナ、漢字</span>だけでなく、<span
 					class="outline">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="outline-offset">日本語の組版は実に難しく、<span
+
+			<h2>outline-offset</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="outline-offset">ひらがな、カタカナ、漢字</span>だけでなく、<span class="outline-offset">アラビア数字 (012)、ラテン文字
 					(ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="box-shadow">日本語の組版は実に難しく、<span
+
+			<h2>box-shadow</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="box-shadow">ひらがな、カタカナ、漢字</span>だけでなく、<span class="box-shadow">アラビア数字 (012)、ラテン文字
 					(ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="box-shadow border-block-end">日本語の組版は実に難しく、<span
+
+			<h2>box-shadow border-block-end</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="box-shadow border-block-end">ひらがな、カタカナ、漢字</span>だけでなく、<span
 					class="box-shadow border-block-end">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="radius">日本語の組版は実に難しく、<span class="radius">ひらがな、カタカナ、漢字</span>だけでなく、<span
+
+			<h2>radius</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span class="radius">ひらがな、カタカナ、漢字</span>だけでなく、<span
 					class="radius">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
-			<p class="vertical" data-class="background-color text-shadow">日本語の組版は実に難しく、<span
+
+			<h2>text-shadow</h2>
+			<p class="vertical">日本語の組版は実に難しく、<span
 					class="background-color text-shadow">ひらがな、カタカナ、漢字</span>だけでなく、<span
 					class="background-color text-shadow">アラビア数字 (012)、ラテン文字 (ABCabc)、時にはギリシャ文字 (αβγ)
 				</span>を使うこともある。</p>
