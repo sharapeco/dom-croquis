@@ -109,6 +109,7 @@ function clip(ctx, token) {
 		return;
 	}
 	if (token.rect) {
+		ctx.beginPath();
 		ctx.rect(token.x, token.y, token.rect.width, token.rect.height);
 		ctx.clip();
 	}
@@ -149,6 +150,7 @@ function fill(ctx, token, scale) {
 		targetCtx.translate(0, 0);
 		targetCtx.fill(path2d, token.path.fillRule ?? "nonzero");
 	} else {
+		targetCtx.beginPath();
 		targetCtx.rect(0, 0, token.rect.width, token.rect.height);
 		targetCtx.fill();
 	}
