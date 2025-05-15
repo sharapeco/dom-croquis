@@ -1,7 +1,7 @@
 {
   "name": "dom-croquis",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Faster screenshots of web pages with JavaScript",
   "directories": {
     "example": "examples"
