@@ -1,4 +1,8 @@
 /**
+ * @typedef {import("../types.js").TextShadow} TextShadow
+ */
+
+/**
  * Parses a color value.
  *
  * @param {string} colorValue
@@ -139,4 +143,41 @@ export function parseBoxShadow(value) {
 		...item,
 		position: item.position ?? "outset",
 	}));
+}
+
+/**
+ * @param {string} value
+ * @returns {TextShadow[]}
+ */
+export function parseTextShadow(value) {
+	if (value === "none") {
+		return [];
+	}
+
+	const textShadowTokens = parseCSSValue(value);
+	const textShadows = [];
+	let item = {};
+	for (const token of textShadowTokens) {
+		if (token.s === ",") {
+			textShadows.push(item);
+			item = {};
+		}
+		if (token.type === "length" && token.f != null) {
+			if (item.x == null) {
+				item.x = token.f;
+			} else if (item.y == null) {
+				item.y = token.f;
+			} else if (item.blur == null) {
+				item.blur = token.f;
+			}
+		} else if (token.type === "color") {
+			if (item.color == null) {
+				item.color = token.s;
+			}
+		}
+	}
+	if (item.y != null) {
+		textShadows.push(item);
+	}
+	return textShadows;
 }

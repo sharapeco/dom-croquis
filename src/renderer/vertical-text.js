@@ -37,12 +37,10 @@ export function detectVerticalRenderingType() {
 	for (let i = 0; i < data.length; i += 4) {
 		if (data[i + 3] >= 32) {
 			verticalRenderingType = "horizontal";
-			console.log("verticalRenderingType", "horizontal");
 			return "horizontal";
 		}
 	}
 	verticalRenderingType = "vertical";
-	console.log("verticalRenderingType", "vertical");
 
 	canvas.remove();
 	return "vertical";

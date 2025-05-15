@@ -185,6 +185,7 @@ function getBlurRadius(filter) {
  * @param {VerticalTextRenderer} vtr
  */
 function text(ctx, token, scale, vtr) {
+	let draw = horizontalText;
 	if (
 		token.writingMode === "vertical-rl" ||
 		token.writingMode === "vertical-lr"
@@ -192,10 +193,25 @@ function text(ctx, token, scale, vtr) {
 		if (!vtr.initialized) {
 			vtr.init();
 		}
-		verticalText(ctx, token, scale, vtr);
-	} else {
-		horizontalText(ctx, token, scale);
+		draw = verticalText;
 	}
+	for (const shadow of token.textShadows.reverse()) {
+		const blurTextToken = {
+			...token,
+			color: shadow.color,
+			x: token.x + shadow.x,
+			y: token.y + shadow.y,
+		};
+		const [blurCtx, finishBlur] = applyTextBlur(
+			ctx,
+			scale,
+			shadow.blur,
+			blurTextToken,
+		);
+		draw(blurCtx, blurTextToken, scale, vtr);
+		finishBlur();
+	}
+	draw(ctx, token, scale, vtr);
 }
 
 /**
@@ -228,7 +244,7 @@ function horizontalText(ctx, token, scale) {
 	const y = token.y + (token.height - token.fontSize) / 2 + textOffsetY;
 	const scaleX = token.scaleX ?? 1;
 
-	ctx.setTransform(scale * scaleX, 0, 0, scale, x * scale, y * scale);
+	ctx.transform(scaleX, 0, 0, 1, x, y);
 	ctx.fillText(text, 0, 0);
 	ctx.restore();
 
@@ -272,7 +288,7 @@ function verticalText(ctx, token, scale, vtr) {
 	const scaleY = 1;
 
 	ctx.save();
-	ctx.setTransform(scaleX, 0, 0, scaleY, x * (1 - scaleX), y * (1 - scaleY));
+	ctx.transform(scaleX / scale, 0, 0, scaleY / scale, x * (1 - scaleX), y * (1 - scaleY));
 	ctx.fillStyle = "#fc0";
 	ctx.fillRect(x - 1, y - 1, 2, 2);
 	vtr.render(ctx, text, x, y, {
@@ -298,6 +314,42 @@ function prepareText(token) {
 		return text.trim();
 	}
 	return text.replace(/\s+/g, " ");
+}
+
+function applyTextBlur(ctx, scale, radius, rect) {
+	if (radius == null || radius === 0) {
+		return [ctx, () => {}];
+	}
+	if (supportsCanvasBlur()) {
+		ctx.save();
+		ctx.filter = `blur(${radius}px)`;
+		return [
+			ctx,
+			() => {
+				ctx.restore();
+			},
+		];
+	}
+	const x = rect.x - radius;
+	const y = rect.y - radius;
+	const width = rect.width + radius * 2;
+	const height = rect.height + radius * 2;
+	const blurCanvas = document.createElement("canvas");
+	blurCanvas.width = width * scale;
+	blurCanvas.height = height * scale;
+	const blurCtx = blurCanvas.getContext("2d");
+	if (!blurCtx) {
+		throw new Error("Failed to get 2d context");
+	}
+	blurCtx.scale(scale, scale);
+	blurCtx.translate(-x, -y);
+	return [
+		blurCtx,
+		() => {
+			blur(blurCanvas, radius * scale);
+			ctx.drawImage(blurCanvas, rect.x, rect.y, rect.width, rect.height);
+		},
+	];
 }
 
 /**

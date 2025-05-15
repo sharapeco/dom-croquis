@@ -3,7 +3,7 @@ import { parseFontProperties } from "./text.js";
 import { createsStackingContext } from "./createsStackingContext.js";
 import { sortByZIndex } from "./sortByZIndex.js";
 import { parseEffects } from "./effects.js";
-
+import { parseTextShadow } from "./parser.js";
 /**
  * @typedef {import("../types.js").Token} Token
  * @typedef {import("../types.js").StackingContextProp} StackingContextProp
@@ -267,12 +267,14 @@ export class Tokenizer {
 			return prevToken;
 		}
 
+		const css = this.getComputedStyle(parentElement);
 		return {
 			type: "text",
 			node: parentElement,
 			...position,
 			text,
-			...parseFontProperties(this.getComputedStyle(parentElement)),
+			...parseFontProperties(css),
+			textShadows: parseTextShadow(css.textShadow),
 		};
 	}
 

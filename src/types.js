@@ -95,6 +95,13 @@
  *
  * @typedef {Object} TextTokenProp
  * @property {string} text
+ * @property {TextShadow[]} textShadows
+ *
+ * @typedef {Object} TextShadow
+ * @property {string} color
+ * @property {number} x
+ * @property {number} y
+ * @property {number} blur
  *
  * @typedef {BaseToken & Coordinates & Rect & TextTokenProp & TextProp} TextToken
  *
