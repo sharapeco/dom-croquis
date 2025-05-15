@@ -124,7 +124,7 @@ export class BoxTokenizer {
 			if (outsetBoxShadows.length > 0) {
 				// 行ごとに分割される場合はマスクをかける
 				const start = isFirst ? 0 : rect[wmX];
-				const end = isLast ? this.rootRect[wmWidth] : this.rootRect[wmHeight];
+				const end = isLast ? this.rootRect[wmWidth] : rect[wmX] + rect[wmWidth];
 				tokens.push({
 					tag: "box-shadow",
 					type: "clip",
